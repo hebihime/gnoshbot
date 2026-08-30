@@ -14,7 +14,29 @@ let package = Package(
         .target(
             name: "GnoshbotData",
             path: ".",
-            sources: ["ActiveOrderCache.swift"]
+            exclude: [
+                "Gnoshbot",
+                "Gnoshbot.xcodeproj",
+                "Tests",
+                "project.yml",
+            ],
+            sources: [
+                "ActiveOrderCache.swift",
+                "RestaurantCache.swift",
+                "MenuCache.swift",
+                "ProfileBlob.swift",
+                "GnoshbotStore.swift",
+                "DeliveryLocationEntity.swift",
+                "DeliveryLocationQuery.swift",
+                "LaunchCopy.swift",
+                "LunchRange.swift",
+                "OrderLunchLaunch.swift",
+            ]
+        ),
+        .testTarget(
+            name: "GnoshbotDataTests",
+            dependencies: ["GnoshbotData"],
+            path: "Tests/GnoshbotDataTests"
         ),
     ]
 )

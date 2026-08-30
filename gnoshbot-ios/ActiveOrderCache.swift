@@ -61,7 +61,9 @@ public final class DeliveryLocation {
         if let line2, !line2.isEmpty {
             parts.append(line2)
         }
-        parts.append(city)
+        if !city.isEmpty {
+            parts.append(city)
+        }
         return parts.joined(separator: ", ")
     }
 }
@@ -171,5 +173,8 @@ public enum GnoshbotSchema {
     public static let models: [any PersistentModel.Type] = [
         DeliveryLocation.self,
         ActiveOrderCache.self,
+        RestaurantCache.self,
+        MenuCache.self,
+        ProfileBlob.self,
     ]
 }
