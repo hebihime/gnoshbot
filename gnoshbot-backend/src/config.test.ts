@@ -12,6 +12,7 @@ const prodSecrets = {
   MENU_WRAP_KEY_HEX:
     "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
   AWS_REGION: INGEST_AWS_REGION,
+  INGEST_LAMBDA_FUNCTION_NAME: "gnoshbot-ingest",
 };
 
 test("dev boot uses documented defaults and pinned Overture release", () => {
@@ -20,6 +21,18 @@ test("dev boot uses documented defaults and pinned Overture release", () => {
   expect(cfg.menuWrapKeyHex).toBe(DEV_MENU_WRAP_KEY_HEX);
   expect(cfg.overtureRelease).toBe(PINNED_OVERTURE_RELEASE);
   expect(cfg.awsRegion).toBe(INGEST_AWS_REGION);
+  expect(cfg.ingestEnabled).toBe(true);
+  expect(cfg.ingestLambdaFunctionName).toBe("");
+});
+
+test("GNOSHBOT_ENV=demo disables Overture ingest", () => {
+  const cfg = loadConfig({ GNOSHBOT_ENV: "demo" });
+  expect(cfg.ingestEnabled).toBe(false);
+  expect(cfg.awsRegion).toBe(INGEST_AWS_REGION);
+});
+
+test("GNOSHBOT_INGEST=0 disables ingest outside production", () => {
+  expect(loadConfig({ GNOSHBOT_INGEST: "0" }).ingestEnabled).toBe(false);
 });
 
 test("production boot without secrets throws", () => {
@@ -67,4 +80,13 @@ test("production boot with real secrets and us-west-2 succeeds", () => {
   expect(cfg.awsRegion).toBe(INGEST_AWS_REGION);
   expect(cfg.overtureRelease).toBe(PINNED_OVERTURE_RELEASE);
   expect(cfg.skipLogHmacSecret).toBe(prodSecrets.SKIP_LOG_HMAC_SECRET);
+  expect(cfg.ingestEnabled).toBe(true);
+  expect(cfg.ingestLambdaFunctionName).toBe("gnoshbot-ingest");
+});
+
+test("production boot without INGEST_LAMBDA_FUNCTION_NAME throws", () => {
+  const { INGEST_LAMBDA_FUNCTION_NAME: _, ...withoutWorker } = prodSecrets;
+  expect(() =>
+    loadConfig({ NODE_ENV: "production", ...withoutWorker })
+  ).toThrow(/INGEST_LAMBDA_FUNCTION_NAME/);
 });

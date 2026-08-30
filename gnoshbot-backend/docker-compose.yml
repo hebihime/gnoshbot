@@ -1,6 +1,7 @@
 services:
   db:
     image: postgis/postgis:16-3.5
+    platform: linux/amd64
     environment:
       POSTGRES_USER: gnoshbot
       POSTGRES_PASSWORD: gnoshbot
@@ -24,6 +25,8 @@ services:
       AWS_REGION: us-west-2
       OVERTURE_RELEASE: "2026-08-19.0"
       PORT: "8080"
+      # Prod enqueue is Lambda Invoke Event. Unset here so local API never calls AWS.
+      # Tiles stay running until you invoke: bun run src/ingest/worker.ts
     depends_on:
       db:
         condition: service_healthy

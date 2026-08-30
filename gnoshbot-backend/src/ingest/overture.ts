@@ -1,6 +1,5 @@
-import duckdb from "duckdb";
-import { config, overturePlacesGlob } from "../config.js";
-import { query } from "../db.js";
+import { config, duckdbOnLambda, overturePlacesGlob } from "../config.js";
+import { withTransaction } from "../db.js";
 
 export type BBox = {
   minLon: number;
@@ -8,6 +7,8 @@ export type BBox = {
   maxLon: number;
   maxLat: number;
 };
+
+export type IngestFn = (bbox: BBox) => Promise<number>;
 
 export type OverturePlaceRow = {
   overture_id: string;
@@ -20,13 +21,14 @@ export type OverturePlaceRow = {
   lat: number;
 };
 
-const SETUP_SQL = `
+export const SETUP_SQL = `
 INSTALL spatial; LOAD spatial;
 INSTALL httpfs;  LOAD httpfs;
 SET s3_region = 'us-west-2';
 `;
 
-const EXTRACT_SQL = `
+/** Literal bbox.* predicates first so GeoParquet row groups prune (GROK T09). */
+export const EXTRACT_SQL = `
 SELECT
   id AS overture_id,
   names.primary AS name,
@@ -65,12 +67,13 @@ ON CONFLICT (overture_id) DO UPDATE
       email_address = EXCLUDED.email_address,
       street_address = EXCLUDED.street_address,
       coordinates = EXCLUDED.coordinates,
-      release = EXCLUDED.release
-  WHERE EXISTS (
+      release = EXCLUDED.release,
+      updated_at = now()
+  WHERE NOT EXISTS (
     SELECT 1
     FROM x402_capabilities c
     WHERE c.overture_id = restaurants.overture_id
-      AND c.integration_status = 'UNSUPPORTED'
+      AND c.integration_status IN ('NATIVE', 'PROXY_WRAPPED')
   );
 `;
 
@@ -116,10 +119,17 @@ const allSql = (
   });
 
 export const extractPlaces = async (bbox: BBox): Promise<OverturePlaceRow[]> => {
+  const duckdb = (await import("duckdb")).default;
   const db = new duckdb.Database(":memory:");
   const connection = db.connect() as unknown as DuckConnection;
   try {
     await execSql(connection, SETUP_SQL);
+    if (duckdbOnLambda()) {
+      await execSql(
+        connection,
+        "SET home_directory = '/tmp'; SET temp_directory = '/tmp';"
+      );
+    }
     return await allSql(connection, EXTRACT_SQL, [
       overturePlacesGlob(),
       bbox.minLon,
@@ -134,23 +144,26 @@ export const extractPlaces = async (bbox: BBox): Promise<OverturePlaceRow[]> => 
 };
 
 export const persistPlaces = async (rows: OverturePlaceRow[]): Promise<number> => {
-  let written = 0;
-  for (const row of rows) {
-    await query(UPSERT_RESTAURANT, [
-      row.overture_id,
-      row.name,
-      row.website_url,
-      row.phone_number,
-      row.email_address,
-      row.street_address,
-      row.lon,
-      row.lat,
-      config.overtureRelease,
-    ]);
-    await query(INSERT_CAPABILITY, [row.overture_id]);
-    written += 1;
+  if (rows.length === 0) {
+    return 0;
   }
-  return written;
+  await withTransaction(async (q) => {
+    for (const row of rows) {
+      await q(UPSERT_RESTAURANT, [
+        row.overture_id,
+        row.name,
+        row.website_url,
+        row.phone_number,
+        row.email_address,
+        row.street_address,
+        row.lon,
+        row.lat,
+        config.overtureRelease,
+      ]);
+      await q(INSERT_CAPABILITY, [row.overture_id]);
+    }
+  });
+  return rows.length;
 };
 
 export const ingestBBox = async (bbox: BBox): Promise<number> => {

@@ -9,7 +9,10 @@
     "dev": "bun run src/index.ts",
     "start": "bun run src/index.ts",
     "ingest": "bun run src/ingest/overture.ts",
+    "worker": "bun run src/ingest/worker.ts",
     "purge": "bun run src/ingest/purge.ts",
+    "lambda:api": "bun run src/lambda-http.ts",
+    "lambda:ingest": "bun run src/ingest/worker.ts",
     "build": "bun build src/index.ts --outdir dist --target bun --packages external",
     "test": "bun test",
     "typecheck": "tsc -p tsconfig.json --noEmit",
@@ -17,6 +20,7 @@
     "smoke:http": "bun run src/smoke/http.ts"
   },
   "dependencies": {
+    "@aws-sdk/client-lambda": "^3.1121.0",
     "@aws-sdk/client-s3": "^3.670.0",
     "duckdb": "^1.4.4",
     "hono": "^4.6.12",
