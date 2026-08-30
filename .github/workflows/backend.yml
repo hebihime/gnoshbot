@@ -1,0 +1,29 @@
+name: gnoshbot-backend
+
+on:
+  push:
+    paths:
+      - "gnoshbot-backend/**"
+      - "database/**"
+      - ".github/workflows/backend.yml"
+  pull_request:
+    paths:
+      - "gnoshbot-backend/**"
+      - "database/**"
+      - ".github/workflows/backend.yml"
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: gnoshbot-backend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: "1.4.0"
+      - run: bun install --frozen-lockfile
+      - run: bun run typecheck
+      - run: bun run smoke:duckdb
+      - run: bun run smoke:http

@@ -1,0 +1,33 @@
+{
+  "name": "gnoshbot-backend",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Gnoshbot control plane: Overture ingest in us-west-2, region tiles, skip logs. Not on the Siri path.",
+  "type": "module",
+  "packageManager": "bun@1.4.0",
+  "scripts": {
+    "dev": "bun run src/index.ts",
+    "start": "bun run src/index.ts",
+    "ingest": "bun run src/ingest/overture.ts",
+    "purge": "bun run src/ingest/purge.ts",
+    "build": "bun build src/index.ts --outdir dist --target bun --packages external",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "smoke:duckdb": "bun run src/smoke/duckdb-gate.ts",
+    "smoke:http": "bun run src/smoke/http.ts"
+  },
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.670.0",
+    "duckdb": "^1.4.4",
+    "hono": "^4.6.12",
+    "jose": "^5.9.6",
+    "ngeohash": "^0.6.3",
+    "pg": "^8.13.1",
+    "viem": "^2.21.54"
+  },
+  "devDependencies": {
+    "@types/bun": "^1.2.21",
+    "@types/ngeohash": "^0.6.8",
+    "@types/pg": "^8.11.10",
+    "typescript": "^5.6.3"
+  }
+}

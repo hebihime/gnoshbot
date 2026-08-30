@@ -599,9 +599,79 @@ WHERE bbox.xmin BETWEEN $min_lon AND $max_lon
 | `PRODUCT_DECISIONS.md` | Zero-disclosure VUI except mandatory address confirm, 3-phase wizard with addresses, closed product calls |
 | `PERFORMANCE_CONSIDERATIONS.md` | 500 ms prompt + 500 ms "On it.", CAG around confirmed address, background handoff |
 | `SCALABILITY.md` | us-west-2 ingest keyed on saved addresses, significant-change pre-warm, purge, skip flywheel |
-| `GROK.md` | This file: register, invariants, templates |
+| `GROK.md` | This file: register, invariants, templates, commit/README language |
+| `README.md` | Public handshake for humans and LinkedIn drafts. **Not** an enforcement layer. |
 
-These five files are the only documentation source of truth in this repository.
+These five markdown files (`ARCHITECTURE.md` through `GROK.md`) are the only documentation source of truth in this repository. `README.md` must not contradict them.
+
+---
+
+## Commit messages (required)
+
+The operator does not write `feat:` / `fix:` / `perf:` by habit. **You must**, when you create the commit, because github-to-linkedin-drafts scores those prefixes. Do not ask the user to rephrase. Pick the type from the actual diff, then write a normal first line after it.
+
+Cursor User Rules still apply: commit only when asked; the **body** is 1–2 sentences on **why**, not a file list; pass the message via HEREDOC.
+
+Format (Conventional Commits):
+
+```
+<type>: <imperative summary, ≥20 characters, no trailing period>
+
+Optional body. Why this change exists. If the change is worth a LinkedIn draft,
+write 80+ characters explaining what shipped and why — not a file list.
+```
+
+Types — use the first that is true:
+
+| Type | When | Effect on the scorer |
+| --- | --- | --- |
+| `feat` | New user-visible capability or API | +12, tiny diffs still allowed |
+| `fix` | Bug, incorrect behavior, security hole | +8, tiny diffs still allowed |
+| `perf` | Faster, cheaper, less memory, lower latency | +10, tiny diffs still allowed |
+| `feat!` / `fix!` | Breaking change. Also add a `BREAKING CHANGE:` footer | type bonus **plus** +18 |
+| `refactor` | Same behavior, different structure | +4 |
+| `chore` `docs` `ci` `test` `style` `build` `deps` `bump` | That is *all* the commit is | **Dropped before scoring.** Correct. Do not disguise these as `feat`. |
+
+Examples:
+
+```
+feat: persist launching ActiveOrderCache after address confirmation
+fix: refuse place() when requestConfirmation did not return true
+perf: fetch latest ActiveOrderCache with timestamp prefix(1)
+ci: run bun typecheck and DuckDB spatial smoke on pull requests
+chore: pin bun packageManager to the machine that passed ingest gate
+
+feat!: drop JSON 402 body for native v2 nodes
+
+BREAKING CHANGE: native merchants must send PAYMENT-SIGNATURE; shop host stays v1.
+```
+
+Not these:
+
+```
+Push
+phase 2: bun switch
+update
+wip
+feat: tweak comments          ← not a feat
+feat: add github actions      ← that is ci:
+```
+
+Do not prefix every commit `feat` to game the scorer. False types pollute drafts. A lockfile bump is `chore` or `deps` and should stay invisible to LinkedIn.
+
+---
+
+## README (public handshake)
+
+github-to-linkedin-drafts fetches the README **after scoring** and uses it only as generation context. Scoring never reads it. New-repo drafts must lead with **why this repo exists**. The README is that spine.
+
+Rules:
+
+1. **Why first.** Gnoshbot is a voice-first lunch agent: confirm a saved delivery address, say "On it.", settle USDC on Base in the background. That thesis belongs in the first screen. Do not open with a folder tree or a protocol lecture.
+2. **Not a generic explainer.** Do not mash nearby keywords into "x402 is for micropayments" / "agents replace apps." Write this product's claim. If README and GROK disagree, GROK wins; fix the README.
+3. **Not a changelog and not the five source-of-truth files.** Mechanisms, endpoints, and first ships are evidence under the why. They do not replace it. Do not copy `ARCHITECTURE.md` into README.
+4. **Keep the launch contract honest.** No spoken minutes until fulfillment `eta_minutes`. GPS is not the destination. Menu, price, and kitchen stay off the launch utterance.
+5. **Handshake, not enforcement.** Humans and LinkedIn drafts read README. Agents encode invariants in this file and in tests.
 
 ---
 

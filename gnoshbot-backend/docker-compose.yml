@@ -1,0 +1,29 @@
+services:
+  db:
+    image: postgis/postgis:16-3.5
+    environment:
+      POSTGRES_USER: gnoshbot
+      POSTGRES_PASSWORD: gnoshbot
+      POSTGRES_DB: gnoshbot
+    ports:
+      - "5432:5432"
+    volumes:
+      - ../database/init.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U gnoshbot -d gnoshbot"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  api:
+    build: .
+    ports:
+      - "8080:8080"
+    environment:
+      DATABASE_URL: postgres://gnoshbot:gnoshbot@db:5432/gnoshbot
+      AWS_REGION: us-west-2
+      OVERTURE_RELEASE: "2026-08-19.0"
+      PORT: "8080"
+    depends_on:
+      db:
+        condition: service_healthy
