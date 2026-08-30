@@ -11,6 +11,7 @@
     "ingest": "bun run src/ingest/overture.ts",
     "purge": "bun run src/ingest/purge.ts",
     "build": "bun build src/index.ts --outdir dist --target bun --packages external",
+    "test": "bun test",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "smoke:duckdb": "bun run src/smoke/duckdb-gate.ts",
     "smoke:http": "bun run src/smoke/http.ts"
