@@ -1,0 +1,11 @@
+manage_neon = true
+# neon_api_key from env NEON_API_KEY or TF_VAR_neon_api_key
+# neon_org_id  = "org-..."
+
+# When manage_neon = false, paste the pooled URL (app) and apply schema on the direct URL:
+# neon_pooled_database_url = "postgresql://user:pass@ep-xxx-pooler.us-west-2.aws.neon.tech/gnoshbot?sslmode=require"
+
+overture_release = "2026-08-19.0"
+image_tag        = "latest"
+monthly_budget_usd = "15"
+# notification_email = "ops@example.com"
