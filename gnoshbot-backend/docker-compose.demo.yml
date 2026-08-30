@@ -1,0 +1,19 @@
+# Public TestFlight demo: seeded tile, no DuckDB ingest.
+#   docker compose -f docker-compose.yml -f docker-compose.demo.yml up --build
+# Do not set NODE_ENV=production. Do not point this file at AWS RDS.
+
+services:
+  db:
+    volumes:
+      - ../database/init.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
+      - ../database/seed/demo.sql:/docker-entrypoint-initdb.d/02-demo.sql:ro
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.demo
+    environment:
+      GNOSHBOT_ENV: demo
+      GNOSHBOT_INGEST: "0"
+      AWS_REGION: us-west-2
+      OVERTURE_RELEASE: "2026-08-19.0"

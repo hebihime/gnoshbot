@@ -1,0 +1,19 @@
+# TestFlight/demo API: ingest is off (GNOSHBOT_ENV=demo). Do not compile DuckDB.
+# Full ingest image is Dockerfile (us-west-2 worker). See infra/demo/README.md.
+FROM oven/bun:1
+
+WORKDIR /app
+
+COPY package.json bun.lock ./
+RUN bun install --frozen-lockfile --ignore-scripts
+
+COPY tsconfig.json ./
+COPY src ./src
+
+ENV AWS_REGION=us-west-2
+ENV PORT=8080
+ENV GNOSHBOT_ENV=demo
+ENV GNOSHBOT_INGEST=0
+EXPOSE 8080
+
+CMD ["bun", "run", "src/index.ts"]
