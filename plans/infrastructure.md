@@ -2,11 +2,13 @@
 
 Status: execution slice. Not source of truth. `GROK.md` T01–T10, T04, `ARCHITECTURE.md` §10, `SCALABILITY.md` S1–S8 win.
 
-Goal: run ingest and the control plane in **AWS us-west-2** against `s3://overturemaps-us-west-2`, Postgres+PostGIS, containerized Bun+DuckDB+spatial (not a 50 MB zip). Voice path does not call this plane. Do not buy provisioned-concurrency Lambda for Siri.
+**Cheap shape (what `infra/` implements):** Neon Postgres+PostGIS in `aws-us-west-2`, two Lambdas in AWS us-west-2 (Function URL API + container ingest), SSM Standard, EventBridge purge, bbox GET to `s3://overturemaps-us-west-2`. **Do not implement N2 RDS, N6 ECS/ALB/NAT, or N8 SQS as required.** Those are the expensive path. Hobby-scale only (few cities); CloudWatch + ECR are the cost leak.
 
-Today: `Dockerfile` (`oven/bun:1`, `bun run smoke:duckdb` at build), `docker-compose.yml` (PostGIS 16 + api), GitHub Actions smokes. Nothing is in AWS.
+Goal of the expensive path (below, deferred): Fargate + RDS + ALB. Voice path does not call this plane. Do not buy provisioned-concurrency Lambda for Siri.
 
-Do not: ingest from us-east-1; cross-region S3 as the strategy; DuckDB on iPhone; public PostGIS; putting `MENU_WRAP_KEY_HEX` in the image.
+Today: `Dockerfile` (`oven/bun:1`, `bun run smoke:duckdb` at build), `docker-compose.yml` (PostGIS 16 + api), GitHub Actions smokes. Cheap AWS is Terraform in `infra/` (no NAT/ALB/RDS).
+
+Do not: ingest from us-east-1; cross-region S3 as the strategy; DuckDB on iPhone; putting `MENU_WRAP_KEY_HEX` in the image.
 
 Commit each atom with Conventional Commits. Body is why.
 
@@ -156,13 +158,46 @@ Commit each atom with Conventional Commits. Body is why.
 
 ---
 
+## N17 — Free public demo (TestFlight-shaped)
+
+**Depends on:** existing `Dockerfile` + `docker-compose.yml`; iOS I0+ to actually upload TestFlight  
+**Files:** `infra/demo/README.md`, `database/seed/demo.sql`, `gnoshbot-backend/docker-compose.demo.yml`  
+**Do:** testers install via TestFlight (Apple hosts the app). Control plane is compose + seed tile `dr5rs`, `GNOSHBOT_ENV=demo` so DuckDB/Overture does not run. Public HTTPS via tunnel or a free VM, not N2/N6.  
+**Do not:** apply RDS/ALB/NAT “for TestFlight”; ingest the planet; put demo wraps on the production live pool (P9/P13).  
+**Done when:** `docker compose -f docker-compose.yml -f docker-compose.demo.yml up` serves the seeded tile; README lists TestFlight vs AWS.
+
+---
+
+## Progress (2026-08-31) — cheap vs expensive
+
+`infra/` **implements the cheap shape**. It does **not** implement N2 RDS, N6 Fargate/ALB, N8 SQS, or N12 NAT. Those stay deferred until a Multi-AZ + idle-ALB bill is acceptable. GROK T01–T10 still win: ingest compute is us-west-2; HTTP does not DuckDB; no provisioned-concurrency Lambda for Siri.
+
+| Atom | Cheap | Expensive path |
+| --- | --- | --- |
+| N0–N1 | **code** (`locals.region`, S3 state backend) | same |
+| N2 PostGIS | **skipped** — Neon `aws-us-west-2` | RDS/Aurora |
+| N3 migrations | **partial** — `scripts/apply-schema.sh` + `init.sql` on Neon direct URL. Versioned `database/migrations/` TBD | same gap |
+| N4 secrets | **code** — SSM Standard | Secrets Manager optional later |
+| N5 ECR | **code** — us-west-2 + lifecycle | same |
+| N6 API | **skipped** — Lambda Function URL | ECS + ALB |
+| N7 ingest | **code** — container Lambda 2048 MB / 900 s | or ECS from SQS |
+| N8 queue | **skipped** — async `lambda:Invoke` | SQS + DLQ |
+| N9 purge | **code** — EventBridge → `{action:purge}` | Fargate scheduled task |
+| N10 APNs | TBD | `.p8` + backend B11 |
+| N11 observability | TBD beyond 7-day log groups | dashboard + GET-count alarm |
+| N12 NAT | **skipped** — Lambdas not in a VPC | S3 gateway + NAT |
+| N13 CI deploy | TBD — GitHub is typecheck/smokes/`bun test` only | OIDC + ECR push + apply |
+| N14 staging data | TBD — “one city bbox” is operator discipline | same |
+| N15 backup | TBD — Neon restore drill | RDS 7-day |
+| N16 budget | **code** — us-west-2, default $15 | same |
+| N17 demo | **done locally** — compose + seed `dr5rs` | never AWS |
+
+**Ops TBD:** `terraform apply` + `push-ecr.sh` on `gnoshbot-staging`; one bbox job &lt; 900 s; iOS base URL = Function URL. Do not apply N2/N6 “to go live.”
+
 ## Order
 
-N0 → N1 → N2 → N3 → N4 → N5 → N6  
-N12 with N6/N7  
-N7 + N8 after backend B7  
-N9 after B14  
-N10 after B11  
-N11, N13, N14, N15, N16 in parallel once N6 exists
+**Cheap (current):** N0 → N1 → Neon (not N2) → apply-schema → N4 SSM → N5 ECR → Function URL (not N6) → N7 ingest Lambda → async Invoke (not N8) → N9 EventBridge → N16. N17 in parallel. N10 / N11 / N13 / N14 / N15 still open.
 
-**Local stand-in (not prod):** `gnoshbot-backend/docker-compose.yml` remains valid for B16 until N2 exists.
+**Expensive (deferred):** N2 → N6 → N8 → N12. Do not mix (no ALB in front of the Function URL).
+
+**Local:** `gnoshbot-backend/docker-compose.yml` for B16. Demo overlay: `docker-compose.demo.yml`.

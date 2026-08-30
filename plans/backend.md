@@ -2,7 +2,31 @@
 
 Status: execution slice. Not source of truth. `GROK.md` wins.
 
-Repo surface: `gnoshbot-backend/` + `database/init.sql`. Today: Hono routes, DuckDB extract/upsert, HMAC skips, AES-GCM menu helpers, x402 v1 header helper, smokes. Not production-correct: `ensureRegion` fires ingest without `Idempotency-Key`; worker is in-process `void`; `MENU_WRAP_KEY_HEX` default is zeros; no tests against Postgres; no silent push.
+Repo surface: `gnoshbot-backend/` + `database/`. Cheap AWS (Neon + Function URL + async ingest Invoke) lives in `infra/` — see `plans/infrastructure.md`. This plane does not need RDS, ALB, or SQS.
+
+## Progress (2026-08-31)
+
+| Atom | State | Notes |
+| --- | --- | --- |
+| B0 | **done** | Production rejects documented secrets; `us-west-2`; pin `OVERTURE_RELEASE`. Demo/`GNOSHBOT_INGEST=0` sets `ingestEnabled=false`. |
+| B1 | **done** | `{ error, code }`, `X-Request-Id`, no SQL in 500s. |
+| B2 | **done** | Required `Idempotency-Key`; finite bbox; `reason`. |
+| B3 | **done** | Tile machine + PostGIS concurrent-ensure test. |
+| B4 | **done** | Payable prefixes only; `/_sandbox/` excluded. |
+| B5 | **done** | Literal `bbox.*`, dual-read categories, pinned glob. |
+| B6 | **done** | NATIVE/PROXY_WRAPPED not overwritten from Overture. |
+| B7 | **done (cheap)** | HTTP enqueues via async `lambda:Invoke` (`enqueue.ts`, `worker.ts`). Unset `INGEST_LAMBDA_FUNCTION_NAME` is a no-op. **Not** SQS. Demo never enqueues. Live Invoke still needs apply + ECR push. |
+| B8 | TBD | `user_locations` table exists; no public route until a GROK one-liner (`POST /devices/location`). |
+| B9 | **done** | HMAC `user_id_hash`; no street/wallet; 404 unknown POI. |
+| B10 | **done** | UUID + token upsert. |
+| B11 | TBD | GROK one-liner + subscriber table; APNs is N10. |
+| B12 | TBD | Skip aggregates, no outreach. |
+| B13 | TBD | Encrypted PROXY_WRAPPED menu write. Helpers in `menu-schema.ts`. |
+| B14 | **code** | SQL function + EventBridge `{action:purge}`. Far-away UNSUPPORTED fixture test TBD. |
+| B15 | TBD | STAC rollover dry-run. |
+| B16 | **done** | `bun test` in CI with compose PostGIS. |
+| B17 | **code** | `assertPayToMatchesSnapshot` / `centsToUsdcAtomic` exist; dedicated unit file TBD. |
+| Shop overlay | other repo | `~/Repos/web3-restaurant-api`. |
 
 This plane is **never** on the Siri path. No lunch-path dependency (`GROK.md`).
 
@@ -80,11 +104,11 @@ Commit each atom with Conventional Commits. Body is why.
 
 ## B7 — Ingest worker out of the HTTP process
 
-**Depends on:** B3, B6, infrastructure I-AWS3  
-**Files:** `src/ingest/worker.ts` (new), `src/regions.ts`  
-**Do:** HTTP inserts `running` and enqueues (SQS / ECS task / Lambda invoke). Worker runs DuckDB, upserts, `MARK_READY` with count, or `failed` + error. Lambda timeout 900 s ceiling; prefer container. Memory start 2048 MB. `/tmp` DuckDB spill.  
-**Do not:** block `POST /regions/ensure` on S3.  
-**Done when:** HTTP returns 202 in &lt; 100 ms with extract stubbed; worker completion flips tile to ready.
+**Depends on:** B3, B6, cheap infra (Function URL + ingest Lambda) — **not** N8 SQS  
+**Files:** `src/ingest/worker.ts`, `src/ingest/enqueue.ts`, `src/regions.ts`  
+**Do:** HTTP inserts `running` and enqueues. Cheap shape: async `lambda:Invoke` (`InvocationType=Event`). Worker runs DuckDB, upserts, `MARK_READY` with count, or `failed` + error. Lambda timeout 900 s; container image; 2048 MB; `/tmp` spill.  
+**Do not:** block `POST /regions/ensure` on S3; add SQS because the expensive plan listed N8.  
+**Done when:** HTTP returns 202 in &lt; 100 ms with extract stubbed; worker completion flips tile to ready. Cheap code is in tree; live Invoke needs apply + ECR.
 
 ---
 
@@ -197,7 +221,9 @@ Until 1–3 exist, iOS I18 is blocked. Gnoshbot-backend must not reimplement the
 ## Order
 
 B0 → B1 → B2 → B3 → B4  
-B5 → B6 → B7 (needs infra queue)  
+B5 → B6 → B7 (cheap: async Lambda invoke; SQS not required)  
 B9, B10, B16, B17 anytime after B0  
 B8/B11 require GROK one-line additions in the same PR  
 B12–B15 after data exists  
+
+Next on this plane: B8 or B11 (GROK line), B12, B13, B17 tests, B14 fixture, B15. Do not wait for RDS/ALB.  

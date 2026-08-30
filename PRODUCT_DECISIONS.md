@@ -356,5 +356,7 @@ There is no feed of nearby restaurants. There is no cart. There is no tip picker
 | P10 | Predictive ETAs are not user-visible. |
 | P11 | Shipping voice copy is plain. |
 | P12 | ENGAGE SYSTEM requires ≥1 saved delivery location. Kitchen search is the 5-mile box around the **confirmed** address. |
+| P13 | Public TestFlight-style demo uses Apple’s binary hosting plus a **seeded, ingest-off** control plane (not AWS RDS/ALB). Demo wrap rows are not the production live pool (P9). Live Overture ingest stays us-west-2 only. |
+| P14 | Hobby/live control plane is **Neon PostGIS in `aws-us-west-2` + two Lambdas** (Function URL API, container ingest, async Invoke, SSM, EventBridge purge). RDS Multi-AZ, ALB, Fargate, NAT, and SQS are an expensive later path, not a prerequisite. (`plans/infrastructure.md` cheap shape; 2026-08-31.) |
 
 Reopen only with a written supersession in this file.
