@@ -4,3 +4,16 @@ dist/
 *.tsbuildinfo
 .swiftpm/
 .build/
+
+# Terraform (keep .terraform.lock.hcl)
+**/.terraform/
+**/*.tfstate
+**/*.tfstate.*
+crash.log
+crash.*.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+*.tfvars
+!**/terraform.tfvars.example
