@@ -1,0 +1,47 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "DenyNonUsWest2RegionalApis",
+      "Effect": "Deny",
+      "NotAction": [
+        "iam:*",
+        "sts:*",
+        "organizations:*",
+        "account:*",
+        "budgets:*",
+        "ce:*",
+        "support:*",
+        "health:*",
+        "route53:*",
+        "route53domains:*",
+        "cloudfront:*",
+        "globalaccelerator:*"
+      ],
+      "Resource": "*",
+      "Condition": {
+        "StringNotEquals": {
+          "aws:RequestedRegion": "us-west-2"
+        }
+      }
+    },
+    {
+      "Sid": "DenyOvertureAccessUnlessUsWest2Api",
+      "Effect": "Deny",
+      "Action": [
+        "s3:GetObject",
+        "s3:GetObjectVersion",
+        "s3:ListBucket"
+      ],
+      "Resource": [
+        "arn:aws:s3:::overturemaps-us-west-2",
+        "arn:aws:s3:::overturemaps-us-west-2/*"
+      ],
+      "Condition": {
+        "StringNotEquals": {
+          "aws:RequestedRegion": "us-west-2"
+        }
+      }
+    }
+  ]
+}
