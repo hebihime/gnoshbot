@@ -1,0 +1,363 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		65B42C67D65797C1502C52AE /* OrderLunchIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 956966F36AB5F02F11E4E818 /* OrderLunchIntent.swift */; };
+		6A9AF676D38B59DB6B0FC694 /* GnoshbotApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4D8AD525DFA3417A1B28946 /* GnoshbotApp.swift */; };
+		C737D78F64AC7EA9D50A7466 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0460EF48EE909B41A6C85C35 /* Assets.xcassets */; };
+		E9B610F10E99DFF7512C18C4 /* GnoshbotData in Frameworks */ = {isa = PBXBuildFile; productRef = 85DB3084601B4A421EEEED92 /* GnoshbotData */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		0460EF48EE909B41A6C85C35 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		466BE8044AE62EC508F5BB54 /* Gnoshbot.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Gnoshbot.entitlements; sourceTree = "<group>"; };
+		956966F36AB5F02F11E4E818 /* OrderLunchIntent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrderLunchIntent.swift; sourceTree = "<group>"; };
+		D6D7B34488BEC206485AC936 /* Gnoshbot.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = Gnoshbot.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		F156A304CDF90200E4465409 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		F326F101E10804DC87825DC7 /* gnoshbot-ios */ = {isa = PBXFileReference; lastKnownFileType = folder; name = "gnoshbot-ios"; path = .; sourceTree = SOURCE_ROOT; };
+		F4D8AD525DFA3417A1B28946 /* GnoshbotApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GnoshbotApp.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		55048197A18C64413DB798C6 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E9B610F10E99DFF7512C18C4 /* GnoshbotData in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		32D34A0F74E9A8B47DF1D103 /* Gnoshbot */ = {
+			isa = PBXGroup;
+			children = (
+				0460EF48EE909B41A6C85C35 /* Assets.xcassets */,
+				466BE8044AE62EC508F5BB54 /* Gnoshbot.entitlements */,
+				F4D8AD525DFA3417A1B28946 /* GnoshbotApp.swift */,
+				F156A304CDF90200E4465409 /* Info.plist */,
+				956966F36AB5F02F11E4E818 /* OrderLunchIntent.swift */,
+			);
+			path = Gnoshbot;
+			sourceTree = "<group>";
+		};
+		56EBF25A58CC3B6AAC41D69A /* Packages */ = {
+			isa = PBXGroup;
+			children = (
+				F326F101E10804DC87825DC7 /* gnoshbot-ios */,
+			);
+			name = Packages;
+			sourceTree = "<group>";
+		};
+		5A9A15116E0B5B9EE415F294 = {
+			isa = PBXGroup;
+			children = (
+				32D34A0F74E9A8B47DF1D103 /* Gnoshbot */,
+				56EBF25A58CC3B6AAC41D69A /* Packages */,
+				C1EE1D526EDEFC5473C8850B /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		C1EE1D526EDEFC5473C8850B /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				D6D7B34488BEC206485AC936 /* Gnoshbot.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		41079ABEB14092B1EF221897 /* Gnoshbot */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 66B2BC3D4E37E23CF46FB5D9 /* Build configuration list for PBXNativeTarget "Gnoshbot" */;
+			buildPhases = (
+				A1E1B17A577E2516771CBFB1 /* Sources */,
+				15055EB73DB8338DB2E4D805 /* Resources */,
+				55048197A18C64413DB798C6 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = Gnoshbot;
+			packageProductDependencies = (
+				85DB3084601B4A421EEEED92 /* GnoshbotData */,
+			);
+			productName = Gnoshbot;
+			productReference = D6D7B34488BEC206485AC936 /* Gnoshbot.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		9C733846C2C390226DE5FC38 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1430;
+				TargetAttributes = {
+					41079ABEB14092B1EF221897 = {
+						ProvisioningStyle = Automatic;
+					};
+				};
+			};
+			buildConfigurationList = C4D15D4CE66632061AA1D286 /* Build configuration list for PBXProject "Gnoshbot" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = 5A9A15116E0B5B9EE415F294;
+			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				196E7AB070FDA867F8BF26A2 /* XCLocalSwiftPackageReference "." */,
+			);
+			preferredProjectObjectVersion = 77;
+			productRefGroup = C1EE1D526EDEFC5473C8850B /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				41079ABEB14092B1EF221897 /* Gnoshbot */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		15055EB73DB8338DB2E4D805 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C737D78F64AC7EA9D50A7466 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		A1E1B17A577E2516771CBFB1 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				6A9AF676D38B59DB6B0FC694 /* GnoshbotApp.swift in Sources */,
+				65B42C67D65797C1502C52AE /* OrderLunchIntent.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		2095ABEDDE2BF41C1D990885 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = Gnoshbot/Gnoshbot.entitlements;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = Gnoshbot/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = bot.gnosh.app;
+				PRODUCT_NAME = Gnoshbot;
+				SDKROOT = iphoneos;
+				SWIFT_STRICT_CONCURRENCY = complete;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		5F3201C48D83A73C4553E544 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 6.0;
+			};
+			name = Debug;
+		};
+		9EE55E3FB76C143EF44B4774 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 6.0;
+			};
+			name = Release;
+		};
+		DCD44068089A2D5B3128EC23 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = Gnoshbot/Gnoshbot.entitlements;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = Gnoshbot/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = bot.gnosh.app;
+				PRODUCT_NAME = Gnoshbot;
+				SDKROOT = iphoneos;
+				SWIFT_STRICT_CONCURRENCY = complete;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		66B2BC3D4E37E23CF46FB5D9 /* Build configuration list for PBXNativeTarget "Gnoshbot" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				DCD44068089A2D5B3128EC23 /* Debug */,
+				2095ABEDDE2BF41C1D990885 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		C4D15D4CE66632061AA1D286 /* Build configuration list for PBXProject "Gnoshbot" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				5F3201C48D83A73C4553E544 /* Debug */,
+				9EE55E3FB76C143EF44B4774 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCLocalSwiftPackageReference section */
+		196E7AB070FDA867F8BF26A2 /* XCLocalSwiftPackageReference "." */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = .;
+		};
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		85DB3084601B4A421EEEED92 /* GnoshbotData */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = GnoshbotData;
+		};
+/* End XCSwiftPackageProductDependency section */
+	};
+	rootObject = 9C733846C2C390226DE5FC38 /* Project object */;
+}

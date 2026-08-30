@@ -1,0 +1,43 @@
+name: Gnoshbot
+options:
+  createIntermediateGroups: true
+  developmentLanguage: en
+  generateEmptyDirectories: true
+settings:
+  base:
+    IPHONEOS_DEPLOYMENT_TARGET: "17.0"
+    SWIFT_VERSION: "6.0"
+packages:
+  GnoshbotData:
+    path: .
+targets:
+  Gnoshbot:
+    type: application
+    platform: iOS
+    deploymentTarget: "17.0"
+    sources:
+      - path: Gnoshbot
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: bot.gnosh.app
+        PRODUCT_NAME: Gnoshbot
+        MARKETING_VERSION: "1.0"
+        CURRENT_PROJECT_VERSION: 1
+        GENERATE_INFOPLIST_FILE: NO
+        INFOPLIST_FILE: Gnoshbot/Info.plist
+        CODE_SIGN_ENTITLEMENTS: Gnoshbot/Gnoshbot.entitlements
+        TARGETED_DEVICE_FAMILY: "1,2"
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        SWIFT_STRICT_CONCURRENCY: complete
+        CODE_SIGN_STYLE: Automatic
+    dependencies:
+      - package: GnoshbotData
+        product: GnoshbotData
+schemes:
+  Gnoshbot:
+    build:
+      targets:
+        Gnoshbot: all
+    run:
+      config: Debug
+      simulateLocation: false
