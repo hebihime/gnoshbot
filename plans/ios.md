@@ -16,7 +16,7 @@ Commit each atom with Conventional Commits (`GROK.md`). Body is why.
 
 **Depends on:** none  
 **Files:** new `gnoshbot-ios/Gnoshbot.xcodeproj` (or `Project.swift` if Tuist later; default: Xcode), `GnoshbotApp.swift`, `Info.plist` keys  
-**Do:** iOS 17+ app, bundle id `bot.gnosh.app`, run App Intents in the **application** process (`ExecutionTargets` → application), not a widget extension. App group `group.bot.gnosh` for SwiftData. `NSLocationAlwaysAndWhenInUseUsageDescription` names travel ingest, not “we send food wherever you are.” Background modes: `fetch`, `remote-notification`, `processing` only as later atoms need them.  
+**Do:** iOS 17+ app, bundle id `com.gnoshbot`, run App Intents in the **application** process (`ExecutionTargets` → application), not a widget extension. App group `group.com.gnoshbot` for SwiftData. `NSLocationAlwaysAndWhenInUseUsageDescription` names travel ingest, not “we send food wherever you are.” Background modes: `fetch`, `remote-notification`, `processing` only as later atoms need them.  
 **Do not:** widget-extension intents; putting the store only in the extension container.  
 **Done when:** empty app launches on simulator; Swift package `GnoshbotData` is a target dependency; app group entitlement present.
 
@@ -149,7 +149,7 @@ Commit each atom with Conventional Commits (`GROK.md`). Body is why.
 
 **Depends on:** I13  
 **Files:** `GnoshbotBackground.swift` as `GROK.md`  
-**Do:** identifier `bot.gnosh.settlement`, `sessionSendsLaunchEvents = true`, `waitsForConnectivity = true`. Expiration handler `endBackgroundTask`.  
+**Do:** identifier `com.gnoshbot.settlement`, `sessionSendsLaunchEvents = true`, `waitsForConnectivity = true`. Expiration handler `endBackgroundTask`.  
 **Do not:** `Task.detached` as the assertion; `LongRunningIntent` for launch.  
 **Done when:** killing the intent process still leaves a system background session (manual: Charles/Proxyman sees later POSTs).
 
@@ -159,7 +159,7 @@ Commit each atom with Conventional Commits (`GROK.md`). Body is why.
 
 **Depends on:** I0  
 **Files:** `SpenderKey.swift` as `GROK.md`  
-**Do:** tag `bot.gnosh.spender.ecdsa`, `kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly`, empty flags.  
+**Do:** tag `com.gnoshbot.spender.ecdsa`, `kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly`, empty flags.  
 **Done when:** unit test: key exists; access control has no `.userPresence` / `.biometryAny`.
 
 ---
