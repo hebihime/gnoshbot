@@ -14,12 +14,16 @@
 		5339490A568F6AB4CFA9E625 /* GnoshbotBackground.swift in Sources */ = {isa = PBXBuildFile; fileRef = 267B26938E555503B41668DA /* GnoshbotBackground.swift */; };
 		65B42C67D65797C1502C52AE /* OrderLunchIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 956966F36AB5F02F11E4E818 /* OrderLunchIntent.swift */; };
 		6A9AF676D38B59DB6B0FC694 /* GnoshbotApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4D8AD525DFA3417A1B28946 /* GnoshbotApp.swift */; };
+		73C1166CA8504235EC1AF039 /* ProfileOnboarding.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1282E7E8671BFCE84E615AA5 /* ProfileOnboarding.swift */; };
+		B5B80BFA30157B807317CDE5 /* PrototypeModelPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0511C4110CDA4443F831FBC0 /* PrototypeModelPicker.swift */; };
 		C737D78F64AC7EA9D50A7466 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0460EF48EE909B41A6C85C35 /* Assets.xcassets */; };
 		E9B610F10E99DFF7512C18C4 /* GnoshbotData in Frameworks */ = {isa = PBXBuildFile; productRef = 85DB3084601B4A421EEEED92 /* GnoshbotData */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		0460EF48EE909B41A6C85C35 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		0511C4110CDA4443F831FBC0 /* PrototypeModelPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrototypeModelPicker.swift; sourceTree = "<group>"; };
+		1282E7E8671BFCE84E615AA5 /* ProfileOnboarding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileOnboarding.swift; sourceTree = "<group>"; };
 		1B602365CE27BE5B70914300 /* HomeScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeScreen.swift; sourceTree = "<group>"; };
 		267B26938E555503B41668DA /* GnoshbotBackground.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GnoshbotBackground.swift; sourceTree = "<group>"; };
 		2A89C0E92DF80AE8EEBA23BE /* InquiryIntents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InquiryIntents.swift; sourceTree = "<group>"; };
@@ -27,7 +31,7 @@
 		466BE8044AE62EC508F5BB54 /* Gnoshbot.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Gnoshbot.entitlements; sourceTree = "<group>"; };
 		956966F36AB5F02F11E4E818 /* OrderLunchIntent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrderLunchIntent.swift; sourceTree = "<group>"; };
 		D4B662EEEF708CF4C170DEF4 /* GnoshbotShortcuts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GnoshbotShortcuts.swift; sourceTree = "<group>"; };
-		D6D7B34488BEC206485AC936 /* Gnoshbot.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = Gnoshbot.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		D6D7B34488BEC206485AC936 /* Gnoshbot.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Gnoshbot.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		F156A304CDF90200E4465409 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		F326F101E10804DC87825DC7 /* gnoshbot-ios */ = {isa = PBXFileReference; lastKnownFileType = folder; name = "gnoshbot-ios"; path = .; sourceTree = SOURCE_ROOT; };
 		F4D8AD525DFA3417A1B28946 /* GnoshbotApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GnoshbotApp.swift; sourceTree = "<group>"; };
@@ -58,6 +62,8 @@
 				2A89C0E92DF80AE8EEBA23BE /* InquiryIntents.swift */,
 				3027111652E304CC5A29D765 /* LocalPushSink.swift */,
 				956966F36AB5F02F11E4E818 /* OrderLunchIntent.swift */,
+				1282E7E8671BFCE84E615AA5 /* ProfileOnboarding.swift */,
+				0511C4110CDA4443F831FBC0 /* PrototypeModelPicker.swift */,
 			);
 			path = Gnoshbot;
 			sourceTree = "<group>";
@@ -169,6 +175,8 @@
 				2DA8278780A6EA1D13EFEDA8 /* InquiryIntents.swift in Sources */,
 				2CCDB6A2757AC2372FA9E102 /* LocalPushSink.swift in Sources */,
 				65B42C67D65797C1502C52AE /* OrderLunchIntent.swift in Sources */,
+				73C1166CA8504235EC1AF039 /* ProfileOnboarding.swift in Sources */,
+				B5B80BFA30157B807317CDE5 /* PrototypeModelPicker.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

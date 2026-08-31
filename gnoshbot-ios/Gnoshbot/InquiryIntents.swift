@@ -49,6 +49,22 @@ struct WhatDidYouOrderIntent: AppIntent {
     }
 }
 
+struct WhyDidYouPickIntent: AppIntent {
+    static let title: LocalizedStringResource = "Why did you pick that"
+    static var openAppWhenRun: Bool { false }
+    @available(iOS 26.0, *)
+    static var supportedModes: IntentModes { .background }
+
+    @MainActor
+    func perform() async throws -> some IntentResult & ProvidesDialog {
+        let row = try GnoshbotStore.shared.latestOrder()
+        guard let row else {
+            return .result(dialog: IntentDialog(stringLiteral: InquirySpeech.noActiveOrder))
+        }
+        return .result(dialog: IntentDialog(stringLiteral: InquirySpeech.why(row)))
+    }
+}
+
 struct WhatDidItCostIntent: AppIntent {
     static let title: LocalizedStringResource = "What did it cost"
     static var openAppWhenRun: Bool { false }

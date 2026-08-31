@@ -4,6 +4,7 @@ import CoreLocation
 import GnoshbotData
 import Intents
 import MapKit
+import SwiftData
 import SwiftUI
 import UserNotifications
 
@@ -102,6 +103,13 @@ struct HomeView: View {
     @State private var errorText: String?
     @State private var mappingCopy: String?
     @State private var showOnboarding = false
+    @State private var siriStatus: String = ""
+    @State private var profile = GnoshbotStore.shared.profile
+
+    init() {
+        _addresses = Query(sort: \DeliveryLocation.label)
+        _orders = Query(sort: \ActiveOrderCache.timestamp, order: .reverse)
+    }
 
     private var settings: ControlPlaneSettings { ControlPlaneSettings.fromAppBundle() }
     private var pipeline: AddressPipeline { AddressPipeline(settings: settings) }
@@ -116,27 +124,38 @@ struct HomeView: View {
                         )
                         .font(.footnote)
                     }
+                    Section("On-device model") {
+                        Text(FoundationModelProbe.load()?.summaryLine ?? "On-device model: no run yet.")
+                            .font(.footnote)
+                        Text("If Siri hangs and you reboot, open Gnoshbot. “never finished” means the Foundation Model call was still in flight.")
+                            .font(.caption2)
+                            .foregroundStyle(.secondary)
+                    }
                     Section("Profile") {
                         NavigationLink("Bio-Shield") {
-                            BioShieldView(profile: Binding(
-                                get: { GnoshbotStore.shared.profile },
-                                set: { GnoshbotStore.shared.persistProfile($0) }
-                            ))
+                            BioShieldView(profile: $profile)
                         }
                         NavigationLink("Flavor Fingerprint") {
-                            FlavorView(profile: Binding(
-                                get: { GnoshbotStore.shared.profile },
-                                set: { GnoshbotStore.shared.persistProfile($0) }
-                            ))
+                            FlavorView(profile: $profile)
                         }
                     }
                 }
-                if let latest = orders.first {
-                    Section("Current order") {
-                        Text(latest.deliverySpokenLine)
-                        Text(latest.status.rawValue)
-                        if settings.isDemo, latest.status == .launching {
-                            Text("Prototype: payment not enabled.")
+                if !orders.isEmpty {
+                    Section("Lunches") {
+                        ForEach(orders, id: \.orderId) { row in
+                            NavigationLink {
+                                OrderReasonView(order: row)
+                            } label: {
+                                VStack(alignment: .leading, spacing: 4) {
+                                    Text(row.itemName.isEmpty ? "Picking…" : row.itemName)
+                                    Text(row.merchantName.isEmpty ? row.status.rawValue : row.merchantName)
+                                        .font(.footnote)
+                                        .foregroundStyle(.secondary)
+                                }
+                            }
+                        }
+                        if settings.isDemo {
+                            Text("Prototype: payment not enabled. Open a lunch to see why it was picked.")
                                 .font(.footnote)
                         }
                     }
@@ -223,6 +242,7 @@ struct HomeView: View {
             .navigationTitle("Gnoshbot")
             .onAppear {
                 UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound]) { _, _ in }
+                profile = GnoshbotStore.shared.profile
                 if settings.isDemo {
                     Task { try? await PrototypeCatalog.hydrate(into: GnoshbotStore.shared) }
                     if !PrototypeProfileStore.hasCompletedOnboarding {
@@ -230,8 +250,14 @@ struct HomeView: View {
                     }
                 }
             }
+            .onChange(of: profile) { _, newValue in
+                GnoshbotStore.shared.persistProfile(newValue)
+            }
             .sheet(isPresented: $showOnboarding) {
-                ProfileOnboardingView { showOnboarding = false }
+                ProfileOnboardingView {
+                    showOnboarding = false
+                    profile = GnoshbotStore.shared.profile
+                }
             }
             .sheet(isPresented: $showEditor) {
                 AddressEditorView(
@@ -409,18 +435,65 @@ final class LocationPin: NSObject, ObservableObject, CLLocationManagerDelegate {
         }
     }
 
-    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+    nonisolated func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         guard let location = locations.last else { return }
-        coordinate = location.coordinate
-        camera = .region(
-            MKCoordinateRegion(
-                center: location.coordinate,
-                span: MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01)
+        let found = location.coordinate
+        Task { @MainActor in
+            coordinate = found
+            camera = .region(
+                MKCoordinateRegion(
+                    center: found,
+                    span: MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01)
+                )
             )
-        )
+        }
     }
 
-    func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {}
+    nonisolated func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {    }
+}
+
+struct OrderReasonView: View {
+    let order: ActiveOrderCache
+
+    var body: some View {
+        List {
+            Section("Order") {
+                LabeledContent("Item", value: order.itemName.isEmpty ? "—" : order.itemName)
+                LabeledContent("Kitchen", value: order.merchantName.isEmpty ? "—" : order.merchantName)
+                LabeledContent("Status", value: order.status.rawValue)
+                LabeledContent("Drop-off", value: order.deliverySpokenLine)
+            }
+            Section("Why") {
+                Text(pickerLabel)
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                Text(reasonText)
+            }
+        }
+        .navigationTitle("Why this lunch")
+    }
+
+    private var pickerLabel: String {
+        switch order.pickSource {
+        case "foundation-model":
+            "On-device model"
+        case "scorer":
+            "Local scorer"
+        default:
+            "Picker not recorded yet"
+        }
+    }
+
+    private var reasonText: String {
+        let reason = order.pickReason ?? ""
+        if reason.isEmpty {
+            if order.itemName.isEmpty {
+                return "Still picking. Open this again in a few seconds."
+            }
+            return "No reason was stored for this lunch (older launches, or the pick never finished)."
+        }
+        return reason
+    }
 }
 
 struct ContactPicker: UIViewControllerRepresentable {

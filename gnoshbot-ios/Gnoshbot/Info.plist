@@ -6,6 +6,29 @@
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
 	<string>Gnoshbot</string>
+	<key>CFBundleSpokenName</key>
+	<string>nosh bot</string>
+	<key>INAlternativeAppNames</key>
+	<array>
+		<dict>
+			<key>INAlternativeAppName</key>
+			<string>Noshbot</string>
+			<key>INAlternativeAppNamePronunciationHint</key>
+			<string>nosh bot</string>
+		</dict>
+		<dict>
+			<key>INAlternativeAppName</key>
+			<string>Nosh bot</string>
+			<key>INAlternativeAppNamePronunciationHint</key>
+			<string>nosh bot</string>
+		</dict>
+		<dict>
+			<key>INAlternativeAppName</key>
+			<string>Nash bot</string>
+			<key>INAlternativeAppNamePronunciationHint</key>
+			<string>nash bot</string>
+		</dict>
+	</array>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>

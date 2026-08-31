@@ -29,28 +29,22 @@ struct BioShieldView: View {
     private func section(title: String, slugs: [String], selected: Binding<[String]>) -> some View {
         VStack(alignment: .leading, spacing: 8) {
             Text(title).font(.headline)
-            LazyVGrid(columns: [GridItem(.adaptive(minimum: 88), spacing: 8)], spacing: 8) {
+            LazyVGrid(columns: [GridItem(.adaptive(minimum: 96), spacing: 8)], spacing: 8) {
                 ForEach(slugs, id: \.self) { slug in
-                    let on = selected.wrappedValue.contains(slug)
-                    Button {
-                        if on {
-                            selected.wrappedValue.removeAll { $0 == slug }
-                        } else {
-                            selected.wrappedValue.append(slug)
-                        }
-                    } label: {
-                        Text(slug)
-                            .font(.caption)
-                            .frame(minWidth: 44, minHeight: 44)
-                            .padding(.horizontal, 8)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 8)
-                                    .stroke(on ? Color.accentColor : Color.primary, lineWidth: on ? 4 : 2)
-                            )
+                    SelectChip(title: slug, isOn: selected.wrappedValue.contains(slug)) {
+                        toggle(slug, in: selected)
                     }
-                    .buttonStyle(.plain)
-                    .accessibilityAddTraits(on ? .isSelected : [])
                 }
+            }
+        }
+    }
+
+    private func toggle(_ slug: String, in selected: Binding<[String]>) {
+        withAnimation(.snappy(duration: 0.15)) {
+            if selected.wrappedValue.contains(slug) {
+                selected.wrappedValue.removeAll { $0 == slug }
+            } else {
+                selected.wrappedValue.append(slug)
             }
         }
     }
@@ -93,8 +87,10 @@ struct FlavorView: View {
     private func commitNever() {
         let value = neverDraft.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !value.isEmpty else { return }
-        if !profile.neverIngredients.contains(where: { $0.caseInsensitiveCompare(value) == .orderedSame }) {
-            profile.neverIngredients.append(value)
+        withAnimation(.snappy(duration: 0.15)) {
+            if !profile.neverIngredients.contains(where: { $0.caseInsensitiveCompare(value) == .orderedSame }) {
+                profile.neverIngredients.append(value)
+            }
         }
         neverDraft = ""
     }
@@ -109,21 +105,47 @@ private struct FlexibleChips: View {
     @Binding var selected: [String]
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        LazyVGrid(columns: [GridItem(.adaptive(minimum: 96), spacing: 8)], spacing: 8) {
             ForEach(slugs, id: \.self) { slug in
-                let on = selected.contains(slug)
-                Button(slug) {
-                    if on {
-                        selected.removeAll { $0 == slug }
-                    } else {
-                        selected.append(slug)
+                SelectChip(title: slug, isOn: selected.contains(slug)) {
+                    withAnimation(.snappy(duration: 0.15)) {
+                        if selected.contains(slug) {
+                            selected.removeAll { $0 == slug }
+                        } else {
+                            selected.append(slug)
+                        }
                     }
                 }
-                .buttonStyle(.bordered)
-                .tint(on ? .accentColor : .secondary)
-                .frame(minHeight: 44)
             }
         }
+        .padding(.vertical, 4)
+    }
+}
+
+private struct SelectChip: View {
+    let title: String
+    let isOn: Bool
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            HStack(spacing: 4) {
+                if isOn {
+                    Image(systemName: "checkmark")
+                        .font(.caption.weight(.bold))
+                }
+                Text(title)
+                    .font(.caption.weight(isOn ? .semibold : .regular))
+            }
+            .frame(maxWidth: .infinity, minHeight: 44)
+            .padding(.horizontal, 8)
+            .background(isOn ? Color.accentColor : Color.primary.opacity(0.08), in: RoundedRectangle(cornerRadius: 8))
+            .foregroundStyle(isOn ? Color.white : Color.primary)
+        }
+        .buttonStyle(.plain)
+        .accessibilityAddTraits(isOn ? .isSelected : [])
+        .accessibilityLabel(title)
+        .accessibilityValue(isOn ? "On" : "Off")
     }
 }
 

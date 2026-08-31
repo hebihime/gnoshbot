@@ -3,6 +3,7 @@ import GnoshbotData
 import UIKit
 
 /// `beginBackgroundTask` + background `URLSession`. Not `Task.detached`.
+@MainActor
 final class GnoshbotBackground: NSObject, URLSessionTaskDelegate, URLSessionDelegate {
     static let shared = GnoshbotBackground()
     private var bgTask: UIBackgroundTaskIdentifier = .invalid
@@ -21,7 +22,7 @@ final class GnoshbotBackground: NSObject, URLSessionTaskDelegate, URLSessionDele
         bgTask = UIApplication.shared.beginBackgroundTask(withName: "gnoshbot.settle") { [weak self] in
             self?.endBg()
         }
-        Task { @MainActor in
+        Task {
             defer { endBg() }
             await settle(pick: pick, delivery: delivery)
         }
@@ -58,7 +59,7 @@ final class GnoshbotBackground: NSObject, URLSessionTaskDelegate, URLSessionDele
         bgTask = UIApplication.shared.beginBackgroundTask(withName: "gnoshbot.follow") { [weak self] in
             self?.endBg()
         }
-        Task { @MainActor in
+        Task {
             defer { endBg() }
             let store = GnoshbotStore.shared
             let settings = ControlPlaneSettings.fromAppBundle()
@@ -74,18 +75,19 @@ final class GnoshbotBackground: NSObject, URLSessionTaskDelegate, URLSessionDele
                     return
                 case .picked(let scorerPick):
                     if settings.isDemo {
-                        if let modelPick = await PrototypeModelPicker.rerank(
+                        let pick = await PrototypeModelPicker.rerank(
                             restaurants: try store.restaurantSnapshots(),
                             menus: try store.menuDocuments(),
                             latitude: delivery.latitude,
                             longitude: delivery.longitude,
                             profile: store.profile,
-                            remainingAllowanceUSDC: store.remainingAllowanceUSDC
-                        ) {
-                            try store.applyLaunchingPick(modelPick)
-                        }
+                            remainingAllowanceUSDC: store.remainingAllowanceUSDC,
+                            prior: try store.priorLunch()
+                        ) ?? scorerPick
+                        try store.applyLaunchingPick(pick)
                         return
                     }
+                    try store.applyLaunchingPick(scorerPick)
                     await settle(pick: scorerPick, delivery: delivery)
                 }
             } catch {
@@ -95,7 +97,7 @@ final class GnoshbotBackground: NSObject, URLSessionTaskDelegate, URLSessionDele
         }
     }
 
-    func urlSessionDidFinishEvents(forBackgroundURLSession session: URLSession) {}
+    nonisolated func urlSessionDidFinishEvents(forBackgroundURLSession session: URLSession) {}
 
     private func endBg() {
         guard bgTask != .invalid else { return }
