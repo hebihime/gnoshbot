@@ -18,3 +18,7 @@ override.tf.json
 *_override.tf.json
 *.tfvars
 !**/terraform.tfvars.example
+
+# Local tester artifacts — never publish
+/gnoshbot_logo.jpg
+infra/demo/TESTFLIGHT_ORIGIN
