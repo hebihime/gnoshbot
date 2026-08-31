@@ -8,6 +8,8 @@ public enum PushCopy: Equatable, Sendable {
     case launchAborted(reason: String)
     case kitchenDeclinedRefundStarted
     case holdExpired
+    case emptyPayableBox
+    case bioShieldEmptiesBox
 
     public var body: String {
         switch self {
@@ -23,6 +25,10 @@ public enum PushCopy: Equatable, Sendable {
             "Kitchen declined. Refund started."
         case .holdExpired:
             "The hold expired. Say the word and I'll retry."
+        case .emptyPayableBox:
+            LaunchCopy.emptyPayableBox.spoken
+        case .bioShieldEmptiesBox:
+            LaunchCopy.bioShieldEmptiesBox.spoken
         }
     }
 }

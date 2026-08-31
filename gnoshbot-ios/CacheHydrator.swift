@@ -113,9 +113,18 @@ public struct CacheHydrator: Sendable {
     @MainActor
     public func hydrate(geohash5: String, into store: GnoshbotStore) async throws {
         let payload = try await fetchRegion(geohash5: geohash5)
+        try await hydratePayload(payload, menusByPrefix: [:], into: store)
+    }
+
+    @MainActor
+    public func hydratePayload(
+        _ payload: RegionPayload,
+        menusByPrefix: [String: Data] = [:],
+        into store: GnoshbotStore
+    ) async throws {
         let live = livePoolPrefixes(from: payload)
         let context = try store.modelContext
-        let center = GeoHash5.decodeCenter(geohash5)
+        let center = GeoHash5.decodeCenter(payload.geohash5)
         for prefix in live where !prefix.overtureId.isEmpty {
             let lat: Double
             let lon: Double
@@ -136,7 +145,13 @@ public struct CacheHydrator: Sendable {
                 context: context
             )
             if let shopPrefix = prefix.shopPrefix {
-                try await upsertMenu(shopPrefix: shopPrefix, origin: prefix.shopOriginHost, location: prefix.shopLocationId, context: context)
+                try await upsertMenu(
+                    shopPrefix: shopPrefix,
+                    origin: prefix.shopOriginHost,
+                    location: prefix.shopLocationId,
+                    bundledJSON: menusByPrefix[shopPrefix],
+                    context: context
+                )
             }
         }
         try context.save()
@@ -181,19 +196,24 @@ public struct CacheHydrator: Sendable {
         shopPrefix: String,
         origin: String?,
         location: String?,
+        bundledJSON: Data?,
         context: ModelContext
     ) async throws {
         var descriptor = FetchDescriptor<MenuCache>(predicate: #Predicate { $0.shopPrefix == shopPrefix })
         descriptor.fetchLimit = 1
         let existing = try context.fetch(descriptor).first
-        if let existing, now().timeIntervalSince(existing.fetchedAt) < Self.menuTTL {
+        if let existing, now().timeIntervalSince(existing.fetchedAt) < Self.menuTTL, bundledJSON == nil {
             return
         }
         let json: Data
-        do {
-            json = try await loadMenuJSON(shopPrefix: shopPrefix, origin: origin, location: location)
-        } catch {
-            return
+        if let bundledJSON {
+            json = bundledJSON
+        } else {
+            do {
+                json = try await loadMenuJSON(shopPrefix: shopPrefix, origin: origin, location: location)
+            } catch {
+                return
+            }
         }
         let digest = MenuDocument.sha256Hex(json)
         if let existing, existing.sha256 == digest {
@@ -209,7 +229,10 @@ public struct CacheHydrator: Sendable {
     }
 
     private func loadMenuJSON(shopPrefix: String, origin: String?, location: String?) async throws -> Data {
-        if ShopPrefix.isDemoFixture(shopPrefix) {
+        if ShopPrefix.isPrototypeFixture(shopPrefix) {
+            if let kitchen = try? PrototypeCatalog.load().kitchens.first(where: { $0.shopPrefix == shopPrefix }) {
+                return kitchen.menuJSON
+            }
             return demoMenuJSON
         }
         if let origin, let location, let shopBase = settings.shopBaseURL {

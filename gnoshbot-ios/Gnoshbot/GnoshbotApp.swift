@@ -13,6 +13,12 @@ struct GnoshbotApp: App {
             let settings = ControlPlaneSettings.fromAppBundle()
             // Demo TestFlight only: not a funded CDP Smart Account (I16). Skips I17 network.
             GnoshbotStore.shared.applyDemoFundingIfNeeded(settings)
+            if settings.isDemo {
+                try? GnoshbotStore.shared.seedPrototypeHomeIfNeeded()
+                Task { @MainActor in
+                    try? await PrototypeCatalog.hydrate(into: GnoshbotStore.shared)
+                }
+            }
             try? SpenderKey.generateIfNeeded()
             container = built
         } catch {

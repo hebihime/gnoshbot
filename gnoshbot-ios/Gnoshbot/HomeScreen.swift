@@ -5,6 +5,7 @@ import GnoshbotData
 import Intents
 import MapKit
 import SwiftUI
+import UserNotifications
 
 struct MapGeocoder: AddressGeocoding {
     func geocode(_ draft: AddressDraft) async throws -> (latitude: Double, longitude: Double) {
@@ -67,6 +68,10 @@ final class AddressPipeline {
             longitude: coords.longitude,
             replacing: id
         )
+        if settings.isDemo {
+            try await PrototypeCatalog.hydrate(into: store)
+            return EnsureResponse(status: .ready, restaurants: try store.restaurantSnapshots().count)
+        }
         let client = RegionEnsureClient(
             settings: settings,
             http: http,
@@ -96,7 +101,7 @@ struct HomeView: View {
     @State private var editingId: UUID?
     @State private var errorText: String?
     @State private var mappingCopy: String?
-    @State private var siriStatus: String = ""
+    @State private var showOnboarding = false
 
     private var settings: ControlPlaneSettings { ControlPlaneSettings.fromAppBundle() }
     private var pipeline: AddressPipeline { AddressPipeline(settings: settings) }
@@ -107,9 +112,23 @@ struct HomeView: View {
                 if settings.isDemo {
                     Section {
                         Text(
-                            "TestFlight demo: launch funding flags are on so Siri is not blocked by wallet setup. This is not a funded Smart Account. After “On it.”, payment is not enabled — no meal is coming."
+                            "Prototype: Siri confirms Home, then On it. Bio-Shield filters the bundled neighborhood before any on-device model re-ranks flavor. This is not a funded Smart Account. Payment is off — no meal is coming."
                         )
                         .font(.footnote)
+                    }
+                    Section("Profile") {
+                        NavigationLink("Bio-Shield") {
+                            BioShieldView(profile: Binding(
+                                get: { GnoshbotStore.shared.profile },
+                                set: { GnoshbotStore.shared.persistProfile($0) }
+                            ))
+                        }
+                        NavigationLink("Flavor Fingerprint") {
+                            FlavorView(profile: Binding(
+                                get: { GnoshbotStore.shared.profile },
+                                set: { GnoshbotStore.shared.persistProfile($0) }
+                            ))
+                        }
                     }
                 }
                 if let latest = orders.first {
@@ -117,7 +136,7 @@ struct HomeView: View {
                         Text(latest.deliverySpokenLine)
                         Text(latest.status.rawValue)
                         if settings.isDemo, latest.status == .launching {
-                            Text("Demo: payment not enabled.")
+                            Text("Prototype: payment not enabled.")
                                 .font(.footnote)
                         }
                     }
@@ -202,6 +221,18 @@ struct HomeView: View {
                 }
             }
             .navigationTitle("Gnoshbot")
+            .onAppear {
+                UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound]) { _, _ in }
+                if settings.isDemo {
+                    Task { try? await PrototypeCatalog.hydrate(into: GnoshbotStore.shared) }
+                    if !PrototypeProfileStore.hasCompletedOnboarding {
+                        showOnboarding = true
+                    }
+                }
+            }
+            .sheet(isPresented: $showOnboarding) {
+                ProfileOnboardingView { showOnboarding = false }
+            }
             .sheet(isPresented: $showEditor) {
                 AddressEditorView(
                     draft: editorDraft,

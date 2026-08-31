@@ -21,36 +21,22 @@ public enum OrderLunchLaunch {
     }
 
     /// `confirmed` is the `requestConfirmation` result. Never call this before that returns.
+    /// A yes always inserts `launching` and returns `.onIt` (P16). Pick and empty-box live in `LaunchFollowThrough`.
     public static func afterConfirmation(
         confirmed: Bool,
         delivery: DeliveryLocation,
         store: GnoshbotStore,
         pick: (() throws -> LunchScoreOutcome)? = nil
     ) throws -> AfterConfirm {
+        _ = pick
         guard confirmed else {
             return .spoken(.confirmationDeclined)
         }
-        if try !store.hasPayableKitchen(near: delivery) {
-            return .spoken(.emptyPayableBox)
-        }
-        let outcome: LunchScoreOutcome
-        if let pick {
-            outcome = try pick()
-        } else {
-            outcome = try store.pickCachedCandidate(near: delivery)
-        }
-        switch outcome {
-        case .emptyPayable:
-            return .spoken(.emptyPayableBox)
-        case .bioShieldEmpty:
-            return .spoken(.bioShieldEmptiesBox)
-        case .pick(let cached):
-            _ = try store.insertLaunching(pick: cached, delivery: delivery)
-            return .onIt
-        }
+        _ = try store.insertLaunching(pick: nil, delivery: delivery)
+        return .onIt
     }
 
-    /// Race the local picker against 400 ms. Timeout still inserts `launching` (deferred pick) and speaks "On it."
+    /// Same as `afterConfirmation`. Pick budget is unused on the voice path (P16).
     public static func afterConfirmationWithBudget(
         confirmed: Bool,
         delivery: DeliveryLocation,
@@ -58,57 +44,14 @@ public enum OrderLunchLaunch {
         budgetNanoseconds: UInt64 = pickBudgetNanoseconds,
         pick: @escaping @Sendable () throws -> LunchScoreOutcome
     ) async throws -> AfterConfirm {
-        guard confirmed else {
-            return .spoken(.confirmationDeclined)
-        }
-        if try !store.hasPayableKitchen(near: delivery) {
-            return .spoken(.emptyPayableBox)
-        }
-        let outcome = await racePick(budgetNanoseconds: budgetNanoseconds, pick: pick)
-        switch outcome {
-        case .timedOut:
-            _ = try store.insertLaunching(pick: nil, delivery: delivery)
-            return .onIt
-        case .finished(.emptyPayable):
-            return .spoken(.emptyPayableBox)
-        case .finished(.bioShieldEmpty):
-            return .spoken(.bioShieldEmptiesBox)
-        case .finished(.pick(let cached)):
-            _ = try store.insertLaunching(pick: cached, delivery: delivery)
-            return .onIt
-        }
-    }
-
-    private static func racePick(
-        budgetNanoseconds: UInt64,
-        pick: @escaping @Sendable () throws -> LunchScoreOutcome
-    ) async -> PickRace {
-        await withTaskGroup(of: PickRace.self) { group in
-            group.addTask {
-                do {
-                    return .finished(try pick())
-                } catch {
-                    return .timedOut
-                }
-            }
-            group.addTask {
-                try? await Task.sleep(nanoseconds: budgetNanoseconds)
-                return .timedOut
-            }
-            let first = await group.next()!
-            group.cancelAll()
-            return first
-        }
+        _ = budgetNanoseconds
+        _ = pick
+        return try afterConfirmation(confirmed: confirmed, delivery: delivery, store: store)
     }
 
     public enum AfterConfirm: Equatable, Sendable {
         case spoken(LaunchCopy)
         case onIt
-    }
-
-    private enum PickRace: Sendable {
-        case finished(LunchScoreOutcome)
-        case timedOut
     }
 }
 

@@ -77,6 +77,36 @@ public final class GnoshbotStore {
         if remainingAllowanceUSDC <= 0 {
             remainingAllowanceUSDC = 25
         }
+        profile = PrototypeProfileStore.load()
+    }
+
+    public func seedPrototypeHomeIfNeeded() throws {
+        if try !deliveryLocations().isEmpty { return }
+        _ = try saveAddress(
+            draft: .brooklynHome,
+            latitude: BrooklynDemoAddress.latitude,
+            longitude: BrooklynDemoAddress.longitude
+        )
+    }
+
+    public func persistProfile(_ envelope: ProfileEnvelope) {
+        profile = envelope
+        PrototypeProfileStore.save(envelope)
+    }
+
+    public func applyLaunchingPick(_ pick: CachedPick) throws {
+        guard let row = try latestOrder(), row.status == .launching else { return }
+        row.merchantName = pick.merchantName
+        row.itemName = pick.itemName
+        row.costUsdc = pick.costUsdcGuess
+        row.shopPrefix = pick.shopPrefix
+        try persist()
+    }
+
+    public func failLatestLaunch(_ push: PushCopy) throws {
+        guard let row = try latestOrder(), row.status == .launching else { return }
+        row.markFailed(push.body)
+        try persist()
     }
 
     public func siriOrderingEnabled() throws -> Bool {
@@ -181,18 +211,20 @@ public final class GnoshbotStore {
     public func restaurantSnapshots() throws -> [RestaurantSnapshot] {
         let context = try modelContext
         let kitchens = try context.fetch(FetchDescriptor<RestaurantCache>())
+        let menus = try menuDocuments()
         return kitchens.map { kitchen in
-            RestaurantSnapshot(
+            let prefix = ShopPrefix.make(
+                originHost: kitchen.shopOriginHost,
+                locationId: kitchen.shopLocationId
+            ) ?? kitchen.nativeX402Url ?? ""
+            return RestaurantSnapshot(
                 overtureId: kitchen.overtureId,
                 name: kitchen.name,
                 latitude: kitchen.latitude,
                 longitude: kitchen.longitude,
                 integration: kitchen.integration,
-                shopPrefix: ShopPrefix.make(
-                    originHost: kitchen.shopOriginHost,
-                    locationId: kitchen.shopLocationId
-                ) ?? kitchen.nativeX402Url ?? "",
-                cuisineTags: []
+                shopPrefix: prefix,
+                cuisineTags: menus[prefix]?.cuisineTags ?? []
             )
         }
     }

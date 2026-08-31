@@ -19,4 +19,8 @@ public enum ShopPrefix {
     public static func isDemoFixture(_ prefix: String) -> Bool {
         prefix == demo || prefix.hasSuffix("/\(demo)") || prefix.contains(demoHost)
     }
+
+    public static func isPrototypeFixture(_ prefix: String) -> Bool {
+        isDemoFixture(prefix) || prefix.contains("prototype.gnoshbot.example")
+    }
 }

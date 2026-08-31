@@ -133,6 +133,39 @@ public enum LunchScorer {
         profile: ProfileEnvelope,
         remainingAllowanceUSDC: Decimal
     ) -> LunchScoreOutcome {
+        let assembled = workingSet(
+            restaurants: restaurants,
+            menus: menus,
+            latitude: latitude,
+            longitude: longitude,
+            profile: profile,
+            remainingAllowanceUSDC: remainingAllowanceUSDC
+        )
+        switch assembled {
+        case .emptyPayable:
+            return .emptyPayable
+        case .bioShieldEmpty:
+            return .bioShieldEmpty
+        case .items(let survivors):
+            return .pick(cachedPick(from: argmax(survivors)))
+        }
+    }
+
+    public enum WorkingSet: Equatable, Sendable {
+        case emptyPayable
+        case bioShieldEmpty
+        case items([ScoredItem])
+    }
+
+    /// Bio-Shield + never-ingredients + range + cap. LLM may only choose an id from `.items`.
+    public static func workingSet(
+        restaurants: [RestaurantSnapshot],
+        menus: [String: MenuDocument],
+        latitude: Double,
+        longitude: Double,
+        profile: ProfileEnvelope,
+        remainingAllowanceUSDC: Decimal
+    ) -> WorkingSet {
         let payable = restaurants.filter { kitchen in
             let kind = kitchen.integration
             let ok = kind == "native" || kind == "proxy_wrapped"
@@ -185,20 +218,30 @@ public enum LunchScorer {
             }
             return .emptyPayable
         }
+        return .items(survivors)
+    }
 
-        let best = survivors.max { lhs, rhs in
+    public static func argmax(_ survivors: [ScoredItem]) -> ScoredItem {
+        survivors.max { lhs, rhs in
             if lhs.score != rhs.score { return lhs.score < rhs.score }
             return lhs.item.id < rhs.item.id
         }!
-        return .pick(
-            CachedPick(
-                overtureId: best.restaurant.overtureId,
-                shopPrefix: best.restaurant.shopPrefix,
-                menuItemId: best.item.id,
-                merchantName: best.restaurant.name,
-                itemName: best.item.name,
-                costUsdcGuess: best.item.costUsdcGuess
-            )
+    }
+
+    public static func cachedPick(from scored: ScoredItem) -> CachedPick {
+        CachedPick(
+            overtureId: scored.restaurant.overtureId,
+            shopPrefix: scored.restaurant.shopPrefix,
+            menuItemId: scored.item.id,
+            merchantName: scored.restaurant.name,
+            itemName: scored.item.name,
+            costUsdcGuess: scored.item.costUsdcGuess
         )
+    }
+
+    /// Foundation Models (and tests) may only land on a pre-filtered survivor.
+    public static func pickIfLegal(itemId: String, from survivors: [ScoredItem]) -> CachedPick? {
+        guard let hit = survivors.first(where: { $0.item.id == itemId }) else { return nil }
+        return cachedPick(from: hit)
     }
 }

@@ -71,6 +71,9 @@ struct PushCopyTests {
         #expect(PushCopy.arriving(minutes: 22).body == "Arriving in 22 minutes.")
         #expect(PushCopy.kitchenDeclinedRefundStarted.body == "Kitchen declined. Refund started.")
         #expect(PushCopy.launchAborted(reason: "Payment rejected").body == "Launch aborted. Payment rejected. Tap to retry.")
+        #expect(PushCopy.emptyPayableBox.body == LaunchCopy.emptyPayableBox.spoken)
+        #expect(PushCopy.bioShieldEmptiesBox.body == LaunchCopy.bioShieldEmptiesBox.spoken)
+        #expect(!PushCopy.emptyPayableBox.body.contains("Tap to retry"))
     }
 }
 

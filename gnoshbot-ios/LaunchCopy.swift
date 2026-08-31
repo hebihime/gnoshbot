@@ -1,6 +1,6 @@
 import Foundation
 
-/// Fatal launch copy from `PRODUCT_DECISIONS.md` §1.5. No merchant, SKU, price, or minutes.
+/// Spoken abort copy from `PRODUCT_DECISIONS.md` §1.5. Empty-box / Bio-Shield strings are also §1.6 push bodies (P16).
 public enum LaunchCopy: String, CaseIterable, Sendable {
     case noSavedAddresses
     case confirmationDeclined

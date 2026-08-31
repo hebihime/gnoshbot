@@ -25,32 +25,16 @@ struct OrderLunchIntent: AppIntent {
             for: proposed,
             dialog: IntentDialog("Deliver to \(proposed.spokenLine)?")
         )
-        let restaurants = try store.restaurantSnapshots()
-        let menus = try store.menuDocuments()
-        let profile = store.profile
-        let remaining = store.remainingAllowanceUSDC
-        let lat = proposedRow.latitude
-        let lon = proposedRow.longitude
-        let result = try await OrderLunchLaunch.afterConfirmationWithBudget(
+        let result = try OrderLunchLaunch.afterConfirmation(
             confirmed: ok,
             delivery: proposedRow,
-            store: store,
-            pick: {
-                LunchScorer.pick(
-                    restaurants: restaurants,
-                    menus: menus,
-                    latitude: lat,
-                    longitude: lon,
-                    profile: profile,
-                    remainingAllowanceUSDC: remaining
-                )
-            }
+            store: store
         )
         switch result {
         case .spoken(let copy):
             return .result(dialog: IntentDialog(stringLiteral: copy.spoken))
         case .onIt:
-            GnoshbotBackground.shared.enqueueSettlement(pick: nil, delivery: proposedRow)
+            GnoshbotBackground.shared.enqueueFollowThrough(delivery: proposedRow)
             return .result(dialog: IntentDialog(stringLiteral: OrderLunchLaunch.onIt))
         }
     }

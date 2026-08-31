@@ -1,7 +1,7 @@
 import Foundation
 
 /// In-memory profile for I12. I10 will SE-wrap this; empty shield means no allergen filter.
-public struct ProfileEnvelope: Equatable, Sendable {
+public struct ProfileEnvelope: Equatable, Sendable, Codable {
     public var allergens: [String]
     public var frameworks: [String]
     public var customExclusions: [String]
@@ -33,6 +33,16 @@ public struct ProfileEnvelope: Equatable, Sendable {
     public var hasAllergenConstraint: Bool {
         !allergens.isEmpty || !frameworks.isEmpty || !customExclusions.isEmpty
     }
+
+    public static let allergenSlugs = [
+        "peanut", "tree nut", "shellfish", "dairy", "egg", "wheat / gluten", "soy", "sesame", "fish",
+    ]
+    public static let frameworkSlugs = ["vegan", "vegetarian", "halal", "kosher"]
+    public static let cuisineChips = [
+        "thai", "mexican", "italian", "mediterranean", "japanese", "indian", "korean", "chinese",
+        "american", "healthy bowls", "pizza", "burgers", "noodles", "bbq", "seafood",
+    ]
+    public static let mealChips = ["bowls", "noodles", "tacos", "burritos", "pizza"]
 }
 
 public enum BioShieldMatcher {

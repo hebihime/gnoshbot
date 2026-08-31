@@ -59,9 +59,9 @@ Every architectural assertion Gnoshbot is allowed to depend on, paired with the 
 A voice-first iOS agent that:
 
 1. Requires ≥1 saved delivery location, and **asks the user to confirm that address every launch**.
-2. Filters payable kitchens in a 5-mile box around the **confirmed** address against an on-device Bio-Shield and Flavor Fingerprint.
+2. After launch, filters payable kitchens in a 5-mile box around the **confirmed** address against an on-device Bio-Shield and Flavor Fingerprint (push if that set is empty).
 3. Places and confirms on an x402 merchant (v1 shop wrap or v2 native), with the confirmed address on the place body.
-4. Speaks **"On it."** in < 500 ms after yes.
+4. Speaks **"On it."** in < 500 ms after yes (does not wait on CAG or an empty cache).
 5. Settles USDC on Base in the background under a CDP Spend Permission.
 6. Tracks fulfillment via HTTP `Location` + GET, not via the kitchen SignalR board.
 7. Discovers POIs from Overture on demand in us-west-2.
@@ -162,9 +162,8 @@ struct OrderLunchIntent: AppIntent {
             return .result(dialog: IntentDialog("No order placed."))
         }
 
-        let pick = store.pickCachedCandidate(near: proposed) // local CAG; bbox of proposed
-        try store.insertLaunching(pick: pick, delivery: proposed)
-        GnoshbotBackground.shared.enqueueSettlement(pick: pick, delivery: proposed)
+        try store.insertLaunching(pick: nil, delivery: proposed)
+        GnoshbotBackground.shared.enqueueFollowThrough(delivery: proposed)
         return .result(dialog: IntentDialog("On it."))
     }
 }

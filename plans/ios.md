@@ -45,7 +45,7 @@ Commit each atom with Conventional Commits (`GROK.md`). Body is why.
 
 **Depends on:** I2  
 **Files:** `LaunchCopy.swift`  
-**Do:** exact strings from `PRODUCT_DECISIONS.md` §1.5: no addresses; declined confirm; unknown label; allowance 0; `funded == false`; no payable kitchen in 5-mile box of **confirmed** address; Bio-Shield empties the box.  
+**Do:** exact strings from `PRODUCT_DECISIONS.md` §1.5: no addresses; declined confirm; unknown label; allowance 0; `funded == false`. Empty payable / Bio-Shield-empty are §1.6 **push** strings (P16), still tested for exact text.  
 **Done when:** table-driven tests assert those strings; no interpolation of merchant/SKU/price/minutes.
 
 ---
@@ -54,7 +54,7 @@ Commit each atom with Conventional Commits (`GROK.md`). Body is why.
 
 **Depends on:** I3  
 **Files:** `OrderLunchIntent.swift`  
-**Do:** `openAppWhenRun = false`, `supportedModes = [.background]`. Guards: allowance, `fundedFlag`, ≥1 `DeliveryLocation`. Then `$deliveryLocation.requestConfirmation(for: proposed, dialog:)` **every launch**. Cancel/false → `"No order placed."` No `POST /orders`. No pick yet: if no payable cache, speak the empty-pool line **after** yes only if the box is empty; before yes never.  
+**Do:** `openAppWhenRun = false`, `supportedModes = [.background]`. Guards: allowance, `fundedFlag`, ≥1 `DeliveryLocation`. Then `$deliveryLocation.requestConfirmation(for: proposed, dialog:)` **every launch**. Cancel/false → `"No order placed."` No `POST /orders`. After yes: insert `launching`, speak `"On it."` even if the cache is empty (P16). Empty-pool / Bio-Shield run in follow-through as pushes.  
 **Do not:** return “On it.” before confirmation; use GPS; geocode a spoken street.  
 **Done when:** UI test or App Intent test: zero addresses → add-address line; cancel confirm → no `ActiveOrderCache` row.
 
@@ -132,7 +132,7 @@ Commit each atom with Conventional Commits (`GROK.md`). Body is why.
 **Files:** `LunchScorer.swift`, `BioShieldMatcher.swift`  
 **Do:** working set ≤10 restaurants, ≤5 items each, 5-mile of **confirmed** `DeliveryLocation`. Bio-Shield fail-closed on name/description (+ synonym table). `neverIngredients` drop. Score: +3 cuisine ∩ preferred, +1 meal type, +1 spice, −2 missing cuisine, −100 never → drop. `costUsdc` local guess ≤ remaining allowance. Emit `select_and_order_native_node` or abort empty payable. Queue `log_skipped_legacy_merchant` for UNSUPPORTED culinary winners **off** the voice clock. Ignore model-invented prices later. No LLM until p95 tool-call &lt; 200 ms measured in lab.  
 **Do not:** RAG; load more than 10 menus “for quality.”  
-**Done when:** fixture menus + peanut shield drops peanut items; empty payable → exact copy from I3.
+**Done when:** fixture menus + peanut shield drops peanut items; empty payable after yes is a push, not a spoken abort (P16).
 
 ---
 
@@ -140,7 +140,7 @@ Commit each atom with Conventional Commits (`GROK.md`). Body is why.
 
 **Depends on:** I4, I12  
 **Files:** `OrderLunchIntent.swift`, `GnoshbotStore.swift`  
-**Do:** after confirm, pick (or defer pick if clock &gt; 400 ms). `insertLaunching` with `deliveryLocationId` + `deliverySpokenLine`. Return `"On it."` p95 &lt; 500 ms from yes. No minutes, merchant, SKU, USDC in that dialog.  
+**Do:** after confirm, `insertLaunching` immediately (pick may be empty). Return `"On it."` p95 &lt; 500 ms from yes. Scorer / model / empty-box push in `LaunchFollowThrough` after the intent returns. No minutes, merchant, SKU, USDC in that dialog.  
 **Done when:** signpost test or documented manual: yes → launching row → dialog; no `X-PAYMENT` in that stack.
 
 ---

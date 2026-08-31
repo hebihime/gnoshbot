@@ -52,8 +52,8 @@ struct OrderLunchLaunchTests {
         #expect(try store.latestOrder() == nil)
     }
 
-    @Test("empty payable box is spoken only after confirmation")
-    func emptyBoxAfterYes() throws {
+    @Test("empty payable box after yes still On it then push")
+    func emptyBoxAfterYes() async throws {
         let store = try makeStore()
         let context = try store.modelContext
         let home = DeliveryLocation(
@@ -76,12 +76,21 @@ struct OrderLunchLaunchTests {
             delivery: home,
             store: store
         )
-        #expect(copy == .spoken(.emptyPayableBox))
-        #expect(try store.latestOrder() == nil)
+        #expect(copy == .onIt)
+        #expect(try store.latestOrder()?.status == .launching)
+        let box = CapturingNotifier.Box()
+        let outcome = try await LaunchFollowThrough.run(
+            store: store,
+            delivery: home,
+            notifier: CapturingNotifier(box: box)
+        )
+        #expect(outcome == .failed(.emptyPayableBox))
+        #expect(try store.latestOrder()?.status == .failed)
+        #expect(box.copies == [.emptyPayableBox])
     }
 
     @Test("yes with payable cache inserts launching and speaks On it without X-PAYMENT")
-    func yesInsertsLaunching() throws {
+    func yesInsertsLaunching() async throws {
         let store = try makeStore()
         let context = try store.modelContext
         let home = DeliveryLocation(
@@ -128,8 +137,20 @@ struct OrderLunchLaunchTests {
         let order = try store.latestOrder()
         #expect(order?.status == .launching)
         #expect(order?.deliveryLocationId == home.id)
-        #expect(order?.merchantName.contains("minute") != true)
-        #expect(order?.itemName.isEmpty == false)
+        #expect(order?.itemName == "")
+        let box = CapturingNotifier.Box()
+        let outcome = try await LaunchFollowThrough.run(
+            store: store,
+            delivery: home,
+            notifier: CapturingNotifier(box: box)
+        )
+        guard case .picked(let pick) = outcome else {
+            Issue.record("expected pick")
+            return
+        }
+        #expect(pick.itemName.isEmpty == false)
+        #expect(try store.latestOrder()?.itemName == pick.itemName)
+        #expect(box.copies.isEmpty)
     }
 
     @Test("pick slower than 400ms still inserts launching with deferred pick")
@@ -184,5 +205,56 @@ struct OrderLunchLaunchTests {
         #expect(result == .onIt)
         #expect(try store.latestOrder()?.shopPrefix == "")
         #expect(try store.latestOrder()?.itemName == "")
+        #expect(try store.latestOrder()?.status == .launching)
+    }
+
+    @Test("Bio-Shield empty after yes is a push not a spoken abort")
+    func bioShieldAfterYes() async throws {
+        let store = try makeStore()
+        store.profile = ProfileEnvelope(allergens: ["peanut", "dairy", "wheat / gluten", "fish", "sesame"])
+        let context = try store.modelContext
+        let home = DeliveryLocation(
+            label: "Home",
+            line1: "14 Pine Street",
+            city: "Brooklyn",
+            region: "NY",
+            postalCode: "11201",
+            country: "US",
+            latitude: 40.6944,
+            longitude: -73.9903,
+            isDefault: true
+        )
+        context.insert(home)
+        context.insert(
+            RestaurantCache(
+                overtureId: "demo.place.brooklyn.wrap",
+                name: "Demo Kitchen (wrap)",
+                latitude: 40.6944,
+                longitude: -73.9903,
+                integration: "proxy_wrapped",
+                shopOriginHost: ShopPrefix.demoHost,
+                shopLocationId: ShopPrefix.demoLocation,
+                x402Version: 1
+            )
+        )
+        let json = MenuDocument.bundledDemoJSON()
+        context.insert(
+            MenuCache(
+                shopPrefix: ShopPrefix.demo,
+                json: json,
+                sha256: MenuDocument.sha256Hex(json)
+            )
+        )
+        try context.save()
+        _ = try OrderLunchLaunch.afterConfirmation(confirmed: true, delivery: home, store: store)
+        let box = CapturingNotifier.Box()
+        let outcome = try await LaunchFollowThrough.run(
+            store: store,
+            delivery: home,
+            notifier: CapturingNotifier(box: box)
+        )
+        #expect(outcome == .failed(.bioShieldEmptiesBox))
+        #expect(try store.latestOrder()?.status == .failed)
+        #expect(box.copies == [.bioShieldEmptiesBox])
     }
 }

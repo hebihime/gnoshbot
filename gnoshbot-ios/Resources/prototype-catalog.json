@@ -1,0 +1,357 @@
+{
+  "geohash5": "dr5rs",
+  "kitchens": [
+    {
+      "overture_id": "demo.place.brooklyn.wrap",
+      "name": "Demo Kitchen (wrap)",
+      "shop_origin_host": "demo-shop.gnoshbot.com",
+      "shop_location_id": "testflight",
+      "latitude": 40.6944,
+      "longitude": -73.9903,
+      "cuisineTags": ["american", "bowls"],
+      "items": [
+        {
+          "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+          "name": "Garden Bowl",
+          "description": "rice, greens, tahini, cucumber",
+          "price": 1400,
+          "spice": "medium",
+          "mealTypes": ["bowls"]
+        },
+        {
+          "id": "7c9e6679-7425-40de-944b-e07fc1f90ae7",
+          "name": "Chicken Noodles",
+          "description": "wheat noodles, chicken, scallion",
+          "price": 1600,
+          "spice": "medium",
+          "mealTypes": ["noodles"]
+        },
+        {
+          "id": "0f14d0ab-9605-4a62-a9e4-5ed26688389b",
+          "name": "Peanut Satay",
+          "description": "chicken skewers with peanut sauce and groundnut oil",
+          "price": 1500,
+          "spice": "high",
+          "mealTypes": ["bowls"]
+        },
+        {
+          "id": "1b9d6bcd-bbfd-4b2d-9b5d-ab8dfbbd4bed",
+          "name": "Margherita",
+          "description": "tomato, basil, mozzarella",
+          "price": 1750,
+          "spice": "mild",
+          "mealTypes": ["pizza"]
+        },
+        {
+          "id": "2c9d6bcd-bbfd-4b2d-9b5d-ab8dfbbd4bee",
+          "name": "Fish Tacos",
+          "description": "cod, cabbage, lime",
+          "price": 1550,
+          "spice": "medium",
+          "mealTypes": ["tacos"]
+        }
+      ]
+    },
+    {
+      "overture_id": "prototype.place.brooklyn.thai",
+      "name": "Atlantic Thai",
+      "shop_origin_host": "prototype.gnoshbot.example",
+      "shop_location_id": "thai",
+      "latitude": 40.6961,
+      "longitude": -73.9878,
+      "cuisineTags": ["thai", "noodles"],
+      "items": [
+        {
+          "id": "thai-pad-see-ew",
+          "name": "Pad See Ew",
+          "description": "wide rice noodles, broccoli, egg, soy",
+          "price": 1650,
+          "spice": "medium",
+          "mealTypes": ["noodles"]
+        },
+        {
+          "id": "thai-green-curry",
+          "name": "Green Curry",
+          "description": "coconut milk, Thai basil, chicken, rice",
+          "price": 1700,
+          "spice": "high",
+          "mealTypes": ["bowls"]
+        },
+        {
+          "id": "thai-tofu-larb",
+          "name": "Tofu Larb",
+          "description": "crispy tofu, mint, lime, toasted rice",
+          "price": 1450,
+          "spice": "high",
+          "mealTypes": ["bowls"]
+        },
+        {
+          "id": "thai-mango-sticky",
+          "name": "Mango Sticky Rice",
+          "description": "mango, coconut, sticky rice",
+          "price": 900,
+          "spice": "mild",
+          "mealTypes": ["bowls"]
+        }
+      ]
+    },
+    {
+      "overture_id": "prototype.place.brooklyn.mexican",
+      "name": "Cobble Tacos",
+      "shop_origin_host": "prototype.gnoshbot.example",
+      "shop_location_id": "mexican",
+      "latitude": 40.6922,
+      "longitude": -73.9931,
+      "cuisineTags": ["mexican"],
+      "items": [
+        {
+          "id": "mx-al-pastor",
+          "name": "Al Pastor Tacos",
+          "description": "pork, pineapple, onion, cilantro, corn tortilla",
+          "price": 1400,
+          "spice": "medium",
+          "mealTypes": ["tacos", "burritos"]
+        },
+        {
+          "id": "mx-bean-burrito",
+          "name": "Bean Burrito",
+          "description": "pinto beans, rice, salsa, flour tortilla",
+          "price": 1300,
+          "spice": "mild",
+          "mealTypes": ["burritos"]
+        },
+        {
+          "id": "mx-shrimp",
+          "name": "Camarones Tacos",
+          "description": "shrimp, cabbage, lime crema",
+          "price": 1800,
+          "spice": "medium",
+          "mealTypes": ["tacos"]
+        },
+        {
+          "id": "mx-veg-bowl",
+          "name": "Elote Bowl",
+          "description": "corn, chili, lime, cotija",
+          "price": 1200,
+          "spice": "medium",
+          "mealTypes": ["bowls"]
+        }
+      ]
+    },
+    {
+      "overture_id": "prototype.place.brooklyn.italian",
+      "name": "Pine Street Pasta",
+      "shop_origin_host": "prototype.gnoshbot.example",
+      "shop_location_id": "italian",
+      "latitude": 40.6974,
+      "longitude": -73.9859,
+      "cuisineTags": ["italian", "pizza"],
+      "items": [
+        {
+          "id": "it-cacio",
+          "name": "Cacio e Pepe",
+          "description": "tonnarelli, pecorino, black pepper",
+          "price": 1800,
+          "spice": "mild",
+          "mealTypes": ["noodles"]
+        },
+        {
+          "id": "it-pepperoni",
+          "name": "Pepperoni Pie",
+          "description": "tomato, mozzarella, pepperoni",
+          "price": 1900,
+          "spice": "medium",
+          "mealTypes": ["pizza"]
+        },
+        {
+          "id": "it-pomodoro",
+          "name": "Pomodoro",
+          "description": "spaghetti, tomato, basil, olive oil",
+          "price": 1500,
+          "spice": "mild",
+          "mealTypes": ["noodles"]
+        },
+        {
+          "id": "it-caesar",
+          "name": "Caesar Salad",
+          "description": "romaine, anchovy, egg, parmesan",
+          "price": 1100,
+          "spice": "mild",
+          "mealTypes": ["bowls"]
+        }
+      ]
+    },
+    {
+      "overture_id": "prototype.place.brooklyn.japanese",
+      "name": "Fulton Ramen",
+      "shop_origin_host": "prototype.gnoshbot.example",
+      "shop_location_id": "japanese",
+      "latitude": 40.6911,
+      "longitude": -73.9948,
+      "cuisineTags": ["japanese", "noodles"],
+      "items": [
+        {
+          "id": "jp-shoyu",
+          "name": "Shoyu Ramen",
+          "description": "wheat noodles, chicken broth, egg, nori",
+          "price": 1700,
+          "spice": "mild",
+          "mealTypes": ["noodles"]
+        },
+        {
+          "id": "jp-spicy-miso",
+          "name": "Spicy Miso Ramen",
+          "description": "wheat noodles, miso, chili oil, pork",
+          "price": 1800,
+          "spice": "high",
+          "mealTypes": ["noodles"]
+        },
+        {
+          "id": "jp-salmon-don",
+          "name": "Salmon Don",
+          "description": "salmon, rice, cucumber, sesame",
+          "price": 1850,
+          "spice": "mild",
+          "mealTypes": ["bowls"]
+        },
+        {
+          "id": "jp-veg-ramen",
+          "name": "Vegetable Ramen",
+          "description": "wheat noodles, kombu broth, tofu, greens",
+          "price": 1550,
+          "spice": "medium",
+          "mealTypes": ["noodles"]
+        }
+      ]
+    },
+    {
+      "overture_id": "prototype.place.brooklyn.indian",
+      "name": "Court Street Masala",
+      "shop_origin_host": "prototype.gnoshbot.example",
+      "shop_location_id": "indian",
+      "latitude": 40.6956,
+      "longitude": -73.9802,
+      "cuisineTags": ["indian"],
+      "items": [
+        {
+          "id": "in-saag",
+          "name": "Saag Paneer",
+          "description": "spinach, paneer, cream, rice",
+          "price": 1600,
+          "spice": "medium",
+          "mealTypes": ["bowls"]
+        },
+        {
+          "id": "in-chana",
+          "name": "Chana Masala",
+          "description": "chickpeas, tomato, spices, rice",
+          "price": 1400,
+          "spice": "medium",
+          "mealTypes": ["bowls"]
+        },
+        {
+          "id": "in-chicken-tikka",
+          "name": "Chicken Tikka",
+          "description": "yogurt-marinated chicken, chili, rice",
+          "price": 1750,
+          "spice": "high",
+          "mealTypes": ["bowls"]
+        },
+        {
+          "id": "in-dal",
+          "name": "Tadka Dal",
+          "description": "lentils, turmeric, ghee, rice",
+          "price": 1200,
+          "spice": "mild",
+          "mealTypes": ["bowls"]
+        }
+      ]
+    },
+    {
+      "overture_id": "prototype.place.brooklyn.mediterranean",
+      "name": "Harbor Grill",
+      "shop_origin_host": "prototype.gnoshbot.example",
+      "shop_location_id": "mediterranean",
+      "latitude": 40.6892,
+      "longitude": -73.9912,
+      "cuisineTags": ["mediterranean", "healthy bowls"],
+      "items": [
+        {
+          "id": "med-falafel",
+          "name": "Falafel Plate",
+          "description": "chickpea fritters, tahini, cucumber, pita wheat",
+          "price": 1450,
+          "spice": "mild",
+          "mealTypes": ["bowls"]
+        },
+        {
+          "id": "med-chicken",
+          "name": "Chicken Shawarma",
+          "description": "chicken, garlic, pickle, pita wheat",
+          "price": 1600,
+          "spice": "medium",
+          "mealTypes": ["bowls"]
+        },
+        {
+          "id": "med-greek",
+          "name": "Greek Salad",
+          "description": "tomato, cucumber, feta, olives",
+          "price": 1250,
+          "spice": "mild",
+          "mealTypes": ["bowls"]
+        },
+        {
+          "id": "med-lamb",
+          "name": "Lamb Kebab",
+          "description": "lamb, yogurt, onion, rice",
+          "price": 1900,
+          "spice": "medium",
+          "mealTypes": ["bowls"]
+        }
+      ]
+    },
+    {
+      "overture_id": "prototype.place.brooklyn.korean",
+      "name": "Smith Street Banchan",
+      "shop_origin_host": "prototype.gnoshbot.example",
+      "shop_location_id": "korean",
+      "latitude": 40.6978,
+      "longitude": -73.9939,
+      "cuisineTags": ["korean"],
+      "items": [
+        {
+          "id": "kr-bibimbap",
+          "name": "Bibimbap",
+          "description": "rice, vegetables, egg, gochujang",
+          "price": 1650,
+          "spice": "medium",
+          "mealTypes": ["bowls"]
+        },
+        {
+          "id": "kr-tofu-stew",
+          "name": "Soft Tofu Stew",
+          "description": "silken tofu, kimchi, broth, rice",
+          "price": 1500,
+          "spice": "high",
+          "mealTypes": ["bowls"]
+        },
+        {
+          "id": "kr-bulgogi",
+          "name": "Bulgogi Bowl",
+          "description": "beef, soy, sesame, rice",
+          "price": 1800,
+          "spice": "medium",
+          "mealTypes": ["bowls"]
+        },
+        {
+          "id": "kr-japchae",
+          "name": "Japchae",
+          "description": "sweet potato noodles, spinach, sesame",
+          "price": 1550,
+          "spice": "mild",
+          "mealTypes": ["noodles"]
+        }
+      ]
+    }
+  ]
+}

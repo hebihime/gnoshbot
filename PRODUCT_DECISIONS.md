@@ -12,9 +12,9 @@ The visual app exists for onboarding and for managing **saved delivery locations
 
 ### 1.1 The user
 
-A person who already decided they will eat, and who has already told the machine their hard constraints (allergies, diet, budget) and **where food is allowed to go**. They are driving, cooking, walking, or in a meeting. They will not look at a screen. They will not compare burrito vs. bowl. They will not authenticate a payment they already authorized this morning. They will hear the drop-off address and say yes or no.
+A person who already decided they will eat, and who has already told the machine their hard constraints (allergies, diet, budget) and **where food is allowed to go**. They are not indecisive about hunger; they are indecisive about **which** kitchen and SKU. Food apps force that comparison. Gnoshbot does not. They confirm a **saved** drop-off and stop choosing. They are not a foodie exploring a city. Discovery-as-entertainment is out of scope. Hands-free Siri is convenience, not a driving or “don’t look at the phone” safety story.
 
-They are not a foodie exploring a city. Discovery-as-entertainment is out of scope. If they want to browse, they open a different app.
+They will hear the drop-off address and say yes or no. They will not compare burrito vs. bowl on the launch turn. They will not authenticate a payment they already authorized. They may read a **push** if the launch later fails.
 
 ### 1.2 The spoken contract
 
@@ -88,11 +88,12 @@ Other safety substitutes:
 - Daily Spend Permission is an on-chain ceiling ([CDP Spend Permissions](https://docs.cdp.coinbase.com/wallets/using-wallets/spend-permissions)).
 - Shop-side payer-keyed daily cap still applies (`GET /guardrails`).
 - `payTo` must match the place-time snapshot.
-- Fatal local aborts (no address, declined address, funds, allowance, empty payable pool) **do** speak, because the missile did not leave the tube.
+- Fatal local aborts **before** a yes (no address, declined address, funds, allowance) **do** speak, because launch did not start.
+- Empty payable pool and Bio-Shield wiping the box happen **after** “On it.” as pushes (P16).
 
 ### 1.5 Fatal interruption copy (only when launch cannot start)
 
-Keep the voice short.
+Keep the voice short. These return **before** `requestConfirmation` yes, except declined confirm which is the no on that prompt.
 
 | Condition | Line |
 | --- | --- |
@@ -101,8 +102,8 @@ Keep the voice short.
 | User names a label that is not saved | "I don't have that address. Open Gnoshbot to add it." |
 | Allowance remaining = 0 | "Order denied. Daily allowance exceeded." |
 | Cached funded flag false | "Launch aborted. Insufficient funds. Top up in Gnoshbot." |
-| No NATIVE or PROXY_WRAPPED node in the 5-mile box around the confirmed address | "No payable kitchen in range of that address." |
-| Bio-Shield would exclude every cached menu in that box | "Every nearby menu collides with your Bio-Shield. I won't guess." |
+
+Empty payable box and Bio-Shield emptying the cached box are **not** spoken. After a yes they are §1.6 pushes (P16).
 
 ### 1.6 Push copy (after the voice channel is closed)
 
@@ -113,8 +114,10 @@ Keep the voice short.
 | Dispatched with updated eta | "On the way. {n} minutes." |
 | Failed payment | "Launch aborted. {reason}. Tap to retry." |
 | Kitchen reject / refund | "Kitchen declined. Refund started." |
+| No payable kitchen in the 5-mile box (after yes) | "No payable kitchen in range of that address." |
+| Bio-Shield excludes every cached item (after yes) | "Every nearby menu collides with your Bio-Shield. I won't guess." |
 
-Pushes may name the merchant. The **launch** utterance still must not. The user has opted into a notification; that is a different channel with a different attention contract.
+Empty-box and Bio-Shield pushes must not name a merchant or item. Other pushes may name the merchant. The **launch** utterance still must not. The user has opted into a notification; that is a different channel.
 
 ---
 
@@ -340,7 +343,23 @@ There is no feed of nearby restaurants. There is no cart. There is no tip picker
 
 ---
 
-## 6. Decisions that are closed
+## 6. Shipping stages
+
+Do not call the iOS-only slice a "demo." Names below are the product language (2026-08-31). Repo paths like `infra/demo/` and `GNOSHBOT_DEMO` are leftovers until a rename; they map to **prototype** fixtures or flags, not a fourth stage.
+
+| Stage | What ships | What does not |
+| --- | --- | --- |
+| **Prototype** | TestFlight (or Debug) iOS. Pre-filled Home (Brooklyn pin). Bundled neighborhood JSON. Bio-Shield + flavor onboarding (plaintext in prototype; I10 SE-wrap is MVP). Siri: confirm address, then "On it." Deterministic scorer on the voice clock. On-device Foundation Models may **re-rank legal ids only**, after Bio-Shield, in the background. Funding flags stubbed. | Gnoshbot HTTP control plane, Postgres/Neon, Overture ingest, Vercel, pay, live kitchens, a conversational LLM, sending allergen lists to a cloud model. |
+| **MVP** | Prototype voice contract **plus** a real control plane: `POST /regions/ensure` and region GET against PostGIS. Cheap host is P14 (Neon `aws-us-west-2` + Function URL) or local compose for proof. Seeded tile is allowed; ingest may stay off. | Full production ops, ALB/NAT/RDS as a requirement, shipping food without shop overlay + settlement. |
+| **After MVP** | If this becomes a real project: live ingest in us-west-2, real Spend Permission + x402 to a shop this host actually serves, fulfillment `eta_minutes`, more than one canned city. | Not specified here. Open a new dated row; do not sneak it into prototype. |
+
+**Agent in prototype:** Gnoshbot is a **delegated launch agent**, not a chat model. Prototype still shows that: App Intent → address confirmation → local pick from cache → spoken "On it." Apple Foundation Models (on-device, Apple Intelligence hardware) may re-rank the **already-filtered** working set using flavor; they do not see raw Bio-Shield slugs as the safety layer and must not invent menu ids. The scorer stays on the Siri clock because "On it." is budgeted in hundreds of milliseconds and the model is not.
+
+P13 (2026-08-31 supersession): public TestFlight **prototype** is iOS-only (bundled JSON, no Gnoshbot backend). A seeded ingest-off control plane is an **MVP** hosting option, not the prototype definition. Demo wrap rows stay out of any production live pool (P9). Live Overture ingest stays us-west-2 only and is **after MVP** unless an MVP explicitly turns a one-city bbox on.
+
+---
+
+## 7. Decisions that are closed
 
 | ID | Decision |
 | --- | --- |
@@ -356,7 +375,8 @@ There is no feed of nearby restaurants. There is no cart. There is no tip picker
 | P10 | Predictive ETAs are not user-visible. |
 | P11 | Shipping voice copy is plain. |
 | P12 | ENGAGE SYSTEM requires ≥1 saved delivery location. Kitchen search is the 5-mile box around the **confirmed** address. |
-| P13 | Public TestFlight-style demo uses Apple’s binary hosting plus a **seeded, ingest-off** control plane (not AWS RDS/ALB). Demo wrap rows are not the production live pool (P9). Live Overture ingest stays us-west-2 only. |
-| P14 | Hobby/live control plane is **Neon PostGIS in `aws-us-west-2` + two Lambdas** (Function URL API, container ingest, async Invoke, SSM, EventBridge purge). RDS Multi-AZ, ALB, Fargate, NAT, and SQS are an expensive later path, not a prerequisite. (`plans/infrastructure.md` cheap shape; 2026-08-31.) |
+| P13 | **Superseded 2026-08-31** by §6. Prototype = iOS-only TestFlight (bundled JSON, no Gnoshbot backend). Seeded ingest-off control plane = MVP option, not prototype. Wrap rows are not the production live pool (P9). Live Overture ingest stays us-west-2 only. |
+| P14 | **MVP** control plane (cheap shape): **Neon PostGIS in `aws-us-west-2` + two Lambdas** (Function URL API, container ingest, async Invoke, SSM, EventBridge purge). RDS Multi-AZ, ALB, Fargate, NAT, and SQS are an expensive later path, not a prerequisite. (`plans/infrastructure.md`; 2026-08-31.) |
+| P16 | After a yes on the saved address, insert `launching` and speak "On it." immediately. Empty payable box and Bio-Shield-empty box are post-launch **pushes**, not spoken aborts. Scorer / Foundation Models / pay run after the intent returns. (2026-08-31.) |
 
 Reopen only with a written supersession in this file.
