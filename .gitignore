@@ -4,6 +4,7 @@ dist/
 *.tsbuildinfo
 .swiftpm/
 .build/
+xcuserdata/
 
 # Terraform (keep .terraform.lock.hcl)
 **/.terraform/
