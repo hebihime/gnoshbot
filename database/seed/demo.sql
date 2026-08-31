@@ -8,7 +8,7 @@ INSERT INTO restaurants (
   (
     'demo.place.brooklyn.wrap',
     'Demo Kitchen (wrap)',
-    'https://demo.gnoshbot.example/',
+    'https://demo.gnoshbot.com/',
     '14 Pine Street',
     ST_SetSRID(ST_MakePoint(-73.9903, 40.6944), 4326),
     ARRAY['demo'],
@@ -31,7 +31,7 @@ INSERT INTO x402_capabilities (
   (
     'demo.place.brooklyn.wrap',
     'PROXY_WRAPPED',
-    'demo-shop.gnoshbot.example',
+    'demo-shop.gnoshbot.com',
     'testflight',
     1
   ),

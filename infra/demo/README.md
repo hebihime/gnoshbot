@@ -18,7 +18,7 @@ AWS N2–N6 (RDS + ALB + Fargate + NAT) is the always-on bill. A public beta doe
 
 Save **Home** as the Brooklyn example (`14 Pine Street`, ~40.6944, -73.9903, geohash5 `dr5rs`) so ensure hits the seeded ready tile. Other cities return 200 with `restaurants: 0` (empty pool after confirm). That is intentional: demo does not ingest the planet.
 
-Sandbox shops stay out of the **production** live pool (`PRODUCT_DECISIONS.md` P9). The demo wrap row (`demo-shop.gnoshbot.example` / `testflight`) exists only in this seed. Point it at a shop prefix you actually operate before testers can settle; do not put that prefix on the prod RDS live pool.
+Sandbox shops stay out of the **production** live pool (`PRODUCT_DECISIONS.md` P9). The demo wrap row (`demo-shop.gnoshbot.com` / `testflight`) exists only in this seed. Point it at a shop prefix you actually operate before testers can settle; do not put that prefix on the prod RDS live pool.
 
 ## Run locally (proof)
 
@@ -40,7 +40,7 @@ Pick one. None of these are us-west-2 ingest (ingest is off).
 
 Do **not** put an ALB or NAT in front of this for a beta. Do **not** set `NODE_ENV=production` on this stack (that path requires real secrets and keeps ingest on).
 
-TestFlight build setting: control-plane base URL = that public HTTPS origin. iOS I7 is the client; until I0 exists there is nothing to upload.
+TestFlight **Release** archive (`com.gnoshbot`, `GNOSHBOT_DEMO`): `GNOSHBOT_API_BASE_URL` is `https://demo.gnoshbot.com` (the public HTTPS origin of this compose stack on gnoshbot.com). Debug points at `http://127.0.0.1:8080`. `fundedFlag` / remaining allowance are demo stubs so I16 does not abort Siri — **not** a funded Smart Account. Settlement is off until “pay on TestFlight.”
 
 ## What this is not
 

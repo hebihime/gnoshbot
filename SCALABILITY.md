@@ -273,7 +273,7 @@ The shop host will not take a photo and call it a restaurant. Gnoshbot's wrap pa
 
 1. Merchant (or our operator) supplies a public menu URL or an upload into a **staging** tool.
 2. Structured extract (Gemini Flash, `ingest.schema.json`) → human confirm (price edit / drop row, no add) — same rules as the shop sandbox.
-3. Staging **graduates** only by publishing a Menu Pull GET on a host we control (`menus.gnoshbot.example/{locationId}`) with `store.payTo` set to a wallet the merchant controls (they paste a 0x they own) **or** a CDP Smart Account whose owner is the merchant's email.
+3. Staging **graduates** only by publishing a Menu Pull GET on a host we control (`menus.gnoshbot.com/{locationId}`) with `store.payTo` set to a wallet the merchant controls (they paste a 0x they own) **or** a CDP Smart Account whose owner is the merchant's email.
 4. `POST /pulls` on `web3-restaurant-api` with that base URL + location id. The shop host fetches, Zod-validates, requires `payTo`, mints `/{originHost}/{locationId}/`.
 5. Gnoshbot sets `x402_capabilities` to `PROXY_WRAPPED` with `shop_origin_host` / `shop_location_id`.
 
