@@ -15,7 +15,6 @@ struct GnoshbotApp: App {
             GnoshbotStore.shared.applyDemoFundingIfNeeded(settings)
             if settings.isDemo {
                 try? GnoshbotStore.shared.seedPrototypeHomeIfNeeded()
-                try? GnoshbotStore.shared.wipeOrdersOnce()
                 FoundationModelProbe.reconcileAbandonedInFlight()
                 Task { @MainActor in
                     try? await PrototypeCatalog.hydrate(into: GnoshbotStore.shared)

@@ -101,16 +101,6 @@ public final class GnoshbotStore {
         try context.save()
     }
 
-    /// One-shot: wipe lunches after the Lamb Kebab demo loop. Addresses stay.
-    public func wipeOrdersOnce() throws {
-        let defaults = FoundationModelProbe.defaults()
-        let key = "gnoshbot.orders.wipe.2026-08-31.3"
-        guard defaults.string(forKey: key) != "done" else { return }
-        try deleteAllOrders()
-        defaults.set("done", forKey: key)
-        defaults.synchronize()
-    }
-
     public func applyDemoFundingIfNeeded(_ settings: ControlPlaneSettings) {
         guard settings.isDemo else { return }
         fundedFlag = true
