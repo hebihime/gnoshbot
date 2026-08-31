@@ -207,7 +207,7 @@ final class GnoshbotBackground: NSObject, URLSessionTaskDelegate {
     private var bgTask: UIBackgroundTaskIdentifier = .invalid
 
     private lazy var session: URLSession = {
-        let cfg = URLSessionConfiguration.background(withIdentifier: "bot.gnosh.settlement")
+        let cfg = URLSessionConfiguration.background(withIdentifier: "com.gnoshbot.settlement")
         cfg.sessionSendsLaunchEvents = true
         cfg.waitsForConnectivity = true
         return URLSession(configuration: cfg, delegate: self, delegateQueue: nil)
@@ -371,7 +371,7 @@ import Security
 import Foundation
 
 enum SpenderKey {
-    static let tag = "bot.gnosh.spender.ecdsa"
+    static let tag = "com.gnoshbot.spender.ecdsa"
 
     static func generateIfNeeded() throws {
         let access = SecAccessControlCreateWithFlags(

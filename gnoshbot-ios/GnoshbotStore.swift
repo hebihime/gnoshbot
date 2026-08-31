@@ -7,28 +7,44 @@ public final class GnoshbotStore {
     public static let shared = GnoshbotStore()
 
     private var container: ModelContainer?
+    private var cachedContext: ModelContext?
 
     public init() {}
 
     public init(container: ModelContainer) {
         self.container = container
+        self.cachedContext = ModelContext(container)
     }
 
     /// Cached locally (I17 refreshes off the voice path). Fail closed until set.
     public var fundedFlag: Bool = false
     public var remainingAllowanceUSDC: Decimal = 0
+    public var remainingAllowanceAtomic: UInt64 { UsdcWire.atomic(usdc: remainingAllowanceUSDC) }
+    /// In-memory until I10 SE-wraps ProfileBlob. Empty shield = no allergen filter.
+    public var profile: ProfileEnvelope = .empty
+    public var lastEnsureCopy: String?
 
     public func attach(_ container: ModelContainer) {
         self.container = container
+        self.cachedContext = ModelContext(container)
     }
 
     public var modelContext: ModelContext {
         get throws {
+            if let cachedContext {
+                return cachedContext
+            }
             guard let container else {
                 throw GnoshbotStoreError.containerNotAttached
             }
-            return ModelContext(container)
+            let context = ModelContext(container)
+            cachedContext = context
+            return context
         }
+    }
+
+    public func persist() throws {
+        try modelContext.save()
     }
 
     public func deliveryLocations() throws -> [DeliveryLocation] {
@@ -54,6 +70,154 @@ public final class GnoshbotStore {
         let context = try modelContext
         return try context.fetch(ActiveOrderInquiry.latestDescriptor()).first
     }
+
+    public func applyDemoFundingIfNeeded(_ settings: ControlPlaneSettings) {
+        guard settings.isDemo else { return }
+        fundedFlag = true
+        if remainingAllowanceUSDC <= 0 {
+            remainingAllowanceUSDC = 25
+        }
+    }
+
+    public func siriOrderingEnabled() throws -> Bool {
+        try !deliveryLocations().isEmpty
+    }
+
+    public func saveAddress(
+        draft: AddressDraft,
+        latitude: Double,
+        longitude: Double,
+        replacing id: UUID? = nil
+    ) throws -> DeliveryLocation {
+        let context = try modelContext
+        let existing = try context.fetch(
+            FetchDescriptor<DeliveryLocation>(sortBy: [SortDescriptor(\.label)])
+        )
+        let labelKey = draft.label.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !labelKey.isEmpty else { throw AddressSaveError.emptyLabel }
+        guard !draft.line1.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+            throw AddressSaveError.emptyLine1
+        }
+        if existing.contains(where: { $0.label.caseInsensitiveCompare(labelKey) == .orderedSame && $0.id != id }) {
+            throw AddressSaveError.duplicateLabel
+        }
+        let makeDefault = draft.isDefault || existing.isEmpty
+        if makeDefault {
+            for row in existing { row.isDefault = false }
+        }
+        let row: DeliveryLocation
+        if let id, let found = existing.first(where: { $0.id == id }) {
+            found.label = labelKey
+            found.line1 = draft.line1
+            found.line2 = draft.line2
+            found.city = draft.city
+            found.region = draft.region
+            found.postalCode = draft.postalCode
+            found.country = draft.country
+            found.latitude = latitude
+            found.longitude = longitude
+            found.isDefault = makeDefault
+            row = found
+        } else {
+            row = DeliveryLocation(
+                label: labelKey,
+                line1: draft.line1,
+                line2: draft.line2,
+                city: draft.city,
+                region: draft.region,
+                postalCode: draft.postalCode,
+                country: draft.country,
+                latitude: latitude,
+                longitude: longitude,
+                isDefault: makeDefault
+            )
+            context.insert(row)
+        }
+        try context.save()
+        return row
+    }
+
+    public func deleteAddress(id: UUID) throws {
+        let context = try modelContext
+        let rows = try context.fetch(FetchDescriptor<DeliveryLocation>())
+        guard let row = rows.first(where: { $0.id == id }) else { return }
+        context.delete(row)
+        let leftover = try context.fetch(
+            FetchDescriptor<DeliveryLocation>(sortBy: [SortDescriptor(\.label)])
+        )
+        if leftover.count == 1 {
+            leftover[0].isDefault = true
+        }
+        try context.save()
+    }
+
+    public func insertLaunching(pick: CachedPick?, delivery: DeliveryLocation) throws -> ActiveOrderCache {
+        let context = try modelContext
+        let deliveryId = delivery.id
+        var descriptor = FetchDescriptor<DeliveryLocation>(
+            predicate: #Predicate { $0.id == deliveryId }
+        )
+        descriptor.fetchLimit = 1
+        let persisted = try context.fetch(descriptor).first ?? delivery
+        persisted.lastConfirmedAt = Date()
+        let row = ActiveOrderCache(
+            orderId: UUID().uuidString,
+            idempotencyKey: UUID().uuidString,
+            shopPrefix: pick?.shopPrefix ?? "",
+            delivery: persisted
+        )
+        row.deliverySpokenLine = persisted.spokenLine
+        if let pick {
+            row.merchantName = pick.merchantName
+            row.itemName = pick.itemName
+            row.costUsdc = pick.costUsdcGuess
+            row.shopPrefix = pick.shopPrefix
+        }
+        context.insert(row)
+        try context.save()
+        return row
+    }
+
+    public func restaurantSnapshots() throws -> [RestaurantSnapshot] {
+        let context = try modelContext
+        let kitchens = try context.fetch(FetchDescriptor<RestaurantCache>())
+        return kitchens.map { kitchen in
+            RestaurantSnapshot(
+                overtureId: kitchen.overtureId,
+                name: kitchen.name,
+                latitude: kitchen.latitude,
+                longitude: kitchen.longitude,
+                integration: kitchen.integration,
+                shopPrefix: ShopPrefix.make(
+                    originHost: kitchen.shopOriginHost,
+                    locationId: kitchen.shopLocationId
+                ) ?? kitchen.nativeX402Url ?? "",
+                cuisineTags: []
+            )
+        }
+    }
+
+    public func menuDocuments() throws -> [String: MenuDocument] {
+        let context = try modelContext
+        let rows = try context.fetch(FetchDescriptor<MenuCache>())
+        var map: [String: MenuDocument] = [:]
+        for row in rows {
+            if let parsed = try? MenuDocument.parse(json: row.json) {
+                map[row.shopPrefix] = parsed
+            }
+        }
+        return map
+    }
+
+    public func pickCachedCandidate(near delivery: DeliveryLocation) throws -> LunchScoreOutcome {
+        try LunchScorer.pick(
+            restaurants: restaurantSnapshots(),
+            menus: menuDocuments(),
+            near: delivery,
+            profile: profile,
+            remainingAllowanceUSDC: remainingAllowanceUSDC
+        )
+    }
 }
 
 public enum GnoshbotStoreError: Error {
@@ -61,7 +225,7 @@ public enum GnoshbotStoreError: Error {
 }
 
 public enum GnoshbotPersistence {
-    public static let appGroupId = "group.bot.gnosh"
+    public static let appGroupId = "group.com.gnoshbot"
     public static let schema = Schema(GnoshbotSchema.models)
 
     public static func appGroupStoreURL() -> URL? {

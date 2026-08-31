@@ -79,4 +79,110 @@ struct OrderLunchLaunchTests {
         #expect(copy == .spoken(.emptyPayableBox))
         #expect(try store.latestOrder() == nil)
     }
+
+    @Test("yes with payable cache inserts launching and speaks On it without X-PAYMENT")
+    func yesInsertsLaunching() throws {
+        let store = try makeStore()
+        let context = try store.modelContext
+        let home = DeliveryLocation(
+            label: "Home",
+            line1: "14 Pine Street",
+            city: "Brooklyn",
+            region: "NY",
+            postalCode: "11201",
+            country: "US",
+            latitude: 40.6944,
+            longitude: -73.9903,
+            isDefault: true
+        )
+        context.insert(home)
+        context.insert(
+            RestaurantCache(
+                overtureId: "demo.place.brooklyn.wrap",
+                name: "Demo Kitchen (wrap)",
+                latitude: 40.6944,
+                longitude: -73.9903,
+                integration: "proxy_wrapped",
+                shopOriginHost: ShopPrefix.demoHost,
+                shopLocationId: ShopPrefix.demoLocation,
+                x402Version: 1
+            )
+        )
+        let json = MenuDocument.bundledDemoJSON()
+        context.insert(
+            MenuCache(
+                shopPrefix: ShopPrefix.demo,
+                json: json,
+                sha256: MenuDocument.sha256Hex(json)
+            )
+        )
+        try context.save()
+
+        let result = try OrderLunchLaunch.afterConfirmation(
+            confirmed: true,
+            delivery: home,
+            store: store
+        )
+        #expect(result == .onIt)
+        #expect(OrderLunchLaunch.onIt == "On it.")
+        let order = try store.latestOrder()
+        #expect(order?.status == .launching)
+        #expect(order?.deliveryLocationId == home.id)
+        #expect(order?.merchantName.contains("minute") != true)
+        #expect(order?.itemName.isEmpty == false)
+    }
+
+    @Test("pick slower than 400ms still inserts launching with deferred pick")
+    func deferPickStillOnIt() async throws {
+        let store = try makeStore()
+        let context = try store.modelContext
+        let home = DeliveryLocation(
+            label: "Home",
+            line1: "14 Pine Street",
+            city: "Brooklyn",
+            region: "NY",
+            postalCode: "11201",
+            country: "US",
+            latitude: 40.6944,
+            longitude: -73.9903,
+            isDefault: true
+        )
+        context.insert(home)
+        context.insert(
+            RestaurantCache(
+                overtureId: "demo.place.brooklyn.wrap",
+                name: "Demo Kitchen (wrap)",
+                latitude: 40.6944,
+                longitude: -73.9903,
+                integration: "proxy_wrapped",
+                shopOriginHost: ShopPrefix.demoHost,
+                shopLocationId: ShopPrefix.demoLocation,
+                x402Version: 1
+            )
+        )
+        try context.save()
+
+        let result = try await OrderLunchLaunch.afterConfirmationWithBudget(
+            confirmed: true,
+            delivery: home,
+            store: store,
+            budgetNanoseconds: 50_000_000,
+            pick: {
+                Thread.sleep(forTimeInterval: 0.2)
+                return .pick(
+                    CachedPick(
+                        overtureId: "demo.place.brooklyn.wrap",
+                        shopPrefix: ShopPrefix.demo,
+                        menuItemId: "x",
+                        merchantName: "should not wait",
+                        itemName: "deferred",
+                        costUsdcGuess: 1
+                    )
+                )
+            }
+        )
+        #expect(result == .onIt)
+        #expect(try store.latestOrder()?.shopPrefix == "")
+        #expect(try store.latestOrder()?.itemName == "")
+    }
 }

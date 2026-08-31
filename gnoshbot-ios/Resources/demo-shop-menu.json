@@ -1,0 +1,48 @@
+{
+  "name": "Demo Kitchen (wrap)",
+  "originHost": "demo-shop.gnoshbot.com",
+  "locationId": "testflight",
+  "cuisineTags": ["american", "bowls"],
+  "items": [
+    {
+      "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+      "name": "Garden Bowl",
+      "description": "rice, greens, tahini, cucumber",
+      "price": 1400,
+      "spice": "medium",
+      "mealTypes": ["bowls"]
+    },
+    {
+      "id": "7c9e6679-7425-40de-944b-e07fc1f90ae7",
+      "name": "Chicken Noodles",
+      "description": "wheat noodles, chicken, scallion",
+      "price": 1600,
+      "spice": "medium",
+      "mealTypes": ["noodles"]
+    },
+    {
+      "id": "0f14d0ab-9605-4a62-a9e4-5ed26688389b",
+      "name": "Peanut Satay",
+      "description": "chicken skewers with peanut sauce and groundnut oil",
+      "price": 1500,
+      "spice": "high",
+      "mealTypes": ["bowls"]
+    },
+    {
+      "id": "1b9d6bcd-bbfd-4b2d-9b5d-ab8dfbbd4bed",
+      "name": "Margherita",
+      "description": "tomato, basil, mozzarella",
+      "price": 1750,
+      "spice": "mild",
+      "mealTypes": ["pizza"]
+    },
+    {
+      "id": "2c9d6bcd-bbfd-4b2d-9b5d-ab8dfbbd4bee",
+      "name": "Fish Tacos",
+      "description": "cod, cabbage, lime",
+      "price": 1550,
+      "spice": "medium",
+      "mealTypes": ["tacos"]
+    }
+  ]
+}

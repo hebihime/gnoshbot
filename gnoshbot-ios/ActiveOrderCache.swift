@@ -86,6 +86,8 @@ public final class ActiveOrderCache {
     public var idempotencyKey: String
     public var deliveryLocationId: UUID
     public var deliverySpokenLine: String
+    /// Poll cap with no eta. Inquiry speaks the waiting-on-kitchen line; never invent minutes.
+    public var awaitingKitchenTime: Bool
 
     public init(
         orderId: String,
@@ -103,6 +105,7 @@ public final class ActiveOrderCache {
         self.costUsdc = 0
         self.deliveryLocationId = delivery.id
         self.deliverySpokenLine = "\(delivery.label), \(delivery.line1)"
+        self.awaitingKitchenTime = false
     }
 
     public func markPlaced() {
