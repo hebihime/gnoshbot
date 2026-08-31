@@ -7,6 +7,16 @@ settings:
   base:
     IPHONEOS_DEPLOYMENT_TARGET: "17.0"
     SWIFT_VERSION: "6.0"
+    GNOSHBOT_OVERTURE_RELEASE: "2026-08-19.0"
+    GNOSHBOT_SHOP_BASE_URL: "http://127.0.0.1:5149"
+    GNOSHBOT_X402_NETWORK: "base-sepolia"
+  configs:
+    Debug:
+      SWIFT_ACTIVE_COMPILATION_CONDITIONS: "DEBUG GNOSHBOT_DEMO"
+      GNOSHBOT_API_BASE_URL: "http://127.0.0.1:8080"
+    Release:
+      SWIFT_ACTIVE_COMPILATION_CONDITIONS: GNOSHBOT_DEMO
+      GNOSHBOT_API_BASE_URL: "https://demo.gnoshbot.com"
 packages:
   GnoshbotData:
     path: .
@@ -19,7 +29,7 @@ targets:
       - path: Gnoshbot
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: bot.gnosh.app
+        PRODUCT_BUNDLE_IDENTIFIER: com.gnoshbot
         PRODUCT_NAME: Gnoshbot
         MARKETING_VERSION: "1.0"
         CURRENT_PROJECT_VERSION: 1
@@ -30,6 +40,7 @@ targets:
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         SWIFT_STRICT_CONCURRENCY: complete
         CODE_SIGN_STYLE: Automatic
+        GNOSHBOT_X402_NETWORK: "base-sepolia"
     dependencies:
       - package: GnoshbotData
         product: GnoshbotData
@@ -41,3 +52,5 @@ schemes:
     run:
       config: Debug
       simulateLocation: false
+    archive:
+      config: Release

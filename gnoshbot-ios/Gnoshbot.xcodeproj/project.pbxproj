@@ -7,6 +7,11 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		14073679149B7118362DB3AB /* GnoshbotShortcuts.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4B662EEEF708CF4C170DEF4 /* GnoshbotShortcuts.swift */; };
+		170D512F12755757F9CD209E /* HomeScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B602365CE27BE5B70914300 /* HomeScreen.swift */; };
+		2CCDB6A2757AC2372FA9E102 /* LocalPushSink.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3027111652E304CC5A29D765 /* LocalPushSink.swift */; };
+		2DA8278780A6EA1D13EFEDA8 /* InquiryIntents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A89C0E92DF80AE8EEBA23BE /* InquiryIntents.swift */; };
+		5339490A568F6AB4CFA9E625 /* GnoshbotBackground.swift in Sources */ = {isa = PBXBuildFile; fileRef = 267B26938E555503B41668DA /* GnoshbotBackground.swift */; };
 		65B42C67D65797C1502C52AE /* OrderLunchIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 956966F36AB5F02F11E4E818 /* OrderLunchIntent.swift */; };
 		6A9AF676D38B59DB6B0FC694 /* GnoshbotApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4D8AD525DFA3417A1B28946 /* GnoshbotApp.swift */; };
 		C737D78F64AC7EA9D50A7466 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0460EF48EE909B41A6C85C35 /* Assets.xcassets */; };
@@ -15,8 +20,13 @@
 
 /* Begin PBXFileReference section */
 		0460EF48EE909B41A6C85C35 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		1B602365CE27BE5B70914300 /* HomeScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeScreen.swift; sourceTree = "<group>"; };
+		267B26938E555503B41668DA /* GnoshbotBackground.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GnoshbotBackground.swift; sourceTree = "<group>"; };
+		2A89C0E92DF80AE8EEBA23BE /* InquiryIntents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InquiryIntents.swift; sourceTree = "<group>"; };
+		3027111652E304CC5A29D765 /* LocalPushSink.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalPushSink.swift; sourceTree = "<group>"; };
 		466BE8044AE62EC508F5BB54 /* Gnoshbot.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Gnoshbot.entitlements; sourceTree = "<group>"; };
 		956966F36AB5F02F11E4E818 /* OrderLunchIntent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrderLunchIntent.swift; sourceTree = "<group>"; };
+		D4B662EEEF708CF4C170DEF4 /* GnoshbotShortcuts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GnoshbotShortcuts.swift; sourceTree = "<group>"; };
 		D6D7B34488BEC206485AC936 /* Gnoshbot.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = Gnoshbot.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		F156A304CDF90200E4465409 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		F326F101E10804DC87825DC7 /* gnoshbot-ios */ = {isa = PBXFileReference; lastKnownFileType = folder; name = "gnoshbot-ios"; path = .; sourceTree = SOURCE_ROOT; };
@@ -41,7 +51,12 @@
 				0460EF48EE909B41A6C85C35 /* Assets.xcassets */,
 				466BE8044AE62EC508F5BB54 /* Gnoshbot.entitlements */,
 				F4D8AD525DFA3417A1B28946 /* GnoshbotApp.swift */,
+				267B26938E555503B41668DA /* GnoshbotBackground.swift */,
+				D4B662EEEF708CF4C170DEF4 /* GnoshbotShortcuts.swift */,
+				1B602365CE27BE5B70914300 /* HomeScreen.swift */,
 				F156A304CDF90200E4465409 /* Info.plist */,
+				2A89C0E92DF80AE8EEBA23BE /* InquiryIntents.swift */,
+				3027111652E304CC5A29D765 /* LocalPushSink.swift */,
 				956966F36AB5F02F11E4E818 /* OrderLunchIntent.swift */,
 			);
 			path = Gnoshbot;
@@ -148,6 +163,11 @@
 			buildActionMask = 2147483647;
 			files = (
 				6A9AF676D38B59DB6B0FC694 /* GnoshbotApp.swift in Sources */,
+				5339490A568F6AB4CFA9E625 /* GnoshbotBackground.swift in Sources */,
+				14073679149B7118362DB3AB /* GnoshbotShortcuts.swift in Sources */,
+				170D512F12755757F9CD209E /* HomeScreen.swift in Sources */,
+				2DA8278780A6EA1D13EFEDA8 /* InquiryIntents.swift in Sources */,
+				2CCDB6A2757AC2372FA9E102 /* LocalPushSink.swift in Sources */,
 				65B42C67D65797C1502C52AE /* OrderLunchIntent.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -164,6 +184,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = NO;
+				GNOSHBOT_X402_NETWORK = "base-sepolia";
 				INFOPLIST_FILE = Gnoshbot/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -171,7 +192,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = bot.gnosh.app;
+				PRODUCT_BUNDLE_IDENTIFIER = com.gnoshbot;
 				PRODUCT_NAME = Gnoshbot;
 				SDKROOT = iphoneos;
 				SWIFT_STRICT_CONCURRENCY = complete;
@@ -230,13 +251,17 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				GNOSHBOT_API_BASE_URL = "http://127.0.0.1:8080";
+				GNOSHBOT_OVERTURE_RELEASE = "2026-08-19.0";
+				GNOSHBOT_SHOP_BASE_URL = "http://127.0.0.1:5149";
+				GNOSHBOT_X402_NETWORK = "base-sepolia";
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
-				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG GNOSHBOT_DEMO";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 6.0;
 			};
@@ -287,11 +312,16 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				GNOSHBOT_API_BASE_URL = "https://demo.gnoshbot.com";
+				GNOSHBOT_OVERTURE_RELEASE = "2026-08-19.0";
+				GNOSHBOT_SHOP_BASE_URL = "http://127.0.0.1:5149";
+				GNOSHBOT_X402_NETWORK = "base-sepolia";
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = GNOSHBOT_DEMO;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				SWIFT_VERSION = 6.0;
@@ -307,6 +337,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = NO;
+				GNOSHBOT_X402_NETWORK = "base-sepolia";
 				INFOPLIST_FILE = Gnoshbot/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -314,7 +345,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = bot.gnosh.app;
+				PRODUCT_BUNDLE_IDENTIFIER = com.gnoshbot;
 				PRODUCT_NAME = Gnoshbot;
 				SDKROOT = iphoneos;
 				SWIFT_STRICT_CONCURRENCY = complete;

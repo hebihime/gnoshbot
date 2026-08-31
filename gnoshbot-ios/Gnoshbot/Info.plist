@@ -20,10 +20,36 @@
 	<string>$(MARKETING_VERSION)</string>
 	<key>CFBundleVersion</key>
 	<string>$(CURRENT_PROJECT_VERSION)</string>
+	<key>GNOSHBOT_API_BASE_URL</key>
+	<string>$(GNOSHBOT_API_BASE_URL)</string>
+	<key>GNOSHBOT_DEMO</key>
+	<true/>
+	<key>GNOSHBOT_OVERTURE_RELEASE</key>
+	<string>$(GNOSHBOT_OVERTURE_RELEASE)</string>
+	<key>GNOSHBOT_SHOP_BASE_URL</key>
+	<string>$(GNOSHBOT_SHOP_BASE_URL)</string>
+	<key>GNOSHBOT_X402_NETWORK</key>
+	<string>$(GNOSHBOT_X402_NETWORK)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<key>NSAllowsLocalNetworking</key>
+		<true/>
+	</dict>
+	<key>NSContactsUsageDescription</key>
+	<string>Gnoshbot can fill a saved delivery address from a contact you pick. Food is only sent to addresses you save and confirm, never to GPS.</string>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
 	<string>Gnoshbot uses significant location changes while you travel so it can pre-warm kitchen maps near you. Food is only sent to a delivery address you confirm, never to your GPS position.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Gnoshbot uses your location on the Addresses map when you tap Use current location, so you can save a labeled drop-off. Food is never sent to live GPS.</string>
+	<key>NSSiriUsageDescription</key>
+	<string>Gnoshbot uses Siri so you can confirm a saved delivery address and launch lunch without opening the app.</string>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>fetch</string>
+		<string>processing</string>
+	</array>
 	<key>UILaunchScreen</key>
 	<dict/>
 	<key>UISupportedInterfaceOrientations</key>
