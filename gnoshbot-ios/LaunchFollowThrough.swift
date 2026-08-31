@@ -35,8 +35,9 @@ public enum LaunchFollowThrough {
             await notifier.notify(push)
             return .failed(push)
         case .items(let survivors):
-            let pick = LunchScorer.cachedPick(from: LunchScorer.argmax(survivors))
-            try store.applyLaunchingPick(pick)
+            let prior = try store.priorLunch()
+            let pool = LunchScorer.withoutImmediateRepeat(survivors, prior: prior)
+            let pick = LunchScorer.cachedPick(from: LunchScorer.argmax(pool), profile: store.profile)
             return .picked(pick)
         }
     }

@@ -149,7 +149,7 @@ struct OrderLunchLaunchTests {
             return
         }
         #expect(pick.itemName.isEmpty == false)
-        #expect(try store.latestOrder()?.itemName == pick.itemName)
+        #expect(try store.latestOrder()?.itemName == "")
         #expect(box.copies.isEmpty)
     }
 

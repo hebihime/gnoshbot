@@ -30,6 +30,10 @@ struct InquirySpeechTests {
         #expect(InquirySpeech.destination(row) == "Home, 14 Pine Street")
         #expect(InquirySpeech.ordered(row) == "Burrito from Wrap Shop.")
         #expect(InquirySpeech.cost(row) == "14.50 USDC")
+        row.pickReason = "Lamb kebab fits mediterranean at medium spice."
+        #expect(InquirySpeech.why(row) == "Burrito from Wrap Shop. Lamb kebab fits mediterranean at medium spice.")
+        row.pickReason = nil
+        #expect(InquirySpeech.why(row) == "No reason stored for that lunch.")
     }
 
     @Test("poll cap copy does not invent minutes")

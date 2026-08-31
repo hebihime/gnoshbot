@@ -91,4 +91,25 @@ struct LunchScorerTests {
         )
         #expect(result == .bioShieldEmpty)
     }
+
+    @Test("withoutImmediateRepeat drops last id when another item exists")
+    func noImmediateRepeat() {
+        let wrap = kitchen()
+        let lamb = ScoredItem(
+            restaurant: wrap,
+            item: MenuItemDocument(id: "med-lamb", name: "Lamb Kebab", description: "", priceCents: 1400),
+            score: 5
+        )
+        let taco = ScoredItem(
+            restaurant: wrap,
+            item: MenuItemDocument(id: "taco", name: "Taco", description: "", priceCents: 1200),
+            score: 4
+        )
+        let prior = PriorLunch(menuItemId: "med-lamb", itemName: "Lamb Kebab", merchantName: wrap.name)
+        let pool = LunchScorer.withoutImmediateRepeat([lamb, taco], prior: prior)
+        #expect(pool.map(\.item.id) == ["taco"])
+        #expect(LunchScorer.argmax(pool).item.id == "taco")
+        let onlyLamb = LunchScorer.withoutImmediateRepeat([lamb], prior: prior)
+        #expect(onlyLamb.map(\.item.id) == ["med-lamb"])
+    }
 }

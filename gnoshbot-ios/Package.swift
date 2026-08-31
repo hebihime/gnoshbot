@@ -54,6 +54,7 @@ let package = Package(
                 "X402Network.swift",
                 "X402V1.swift",
                 "FulfillmentPoller.swift",
+                "FoundationModelProbe.swift",
                 "InquirySpeech.swift",
             ],
             resources: [

@@ -88,6 +88,9 @@ public final class ActiveOrderCache {
     public var deliverySpokenLine: String
     /// Poll cap with no eta. Inquiry speaks the waiting-on-kitchen line; never invent minutes.
     public var awaitingKitchenTime: Bool
+    public var pickSource: String?
+    public var pickReason: String?
+    public var menuItemId: String?
 
     public init(
         orderId: String,
@@ -106,6 +109,9 @@ public final class ActiveOrderCache {
         self.deliveryLocationId = delivery.id
         self.deliverySpokenLine = "\(delivery.label), \(delivery.line1)"
         self.awaitingKitchenTime = false
+        self.pickSource = nil
+        self.pickReason = nil
+        self.menuItemId = nil
     }
 
     public func markPlaced() {

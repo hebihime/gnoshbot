@@ -13,6 +13,10 @@ public struct CachedPick: Equatable, Sendable {
     public var payTo: String
     /// 1 = shop host (`X-PAYMENT`). 2 = native nodes (`PAYMENT-SIGNATURE`).
     public var x402Version: Int
+    /// `scorer` or `foundation-model`. Empty until a pick is applied.
+    public var pickSource: String
+    /// Why this item won. Never spoken on the launch turn.
+    public var pickReason: String
 
     public init(
         overtureId: String,
@@ -24,7 +28,9 @@ public struct CachedPick: Equatable, Sendable {
         itemName: String,
         costUsdcGuess: Decimal,
         payTo: String = "",
-        x402Version: Int = 1
+        x402Version: Int = 1,
+        pickSource: String = "scorer",
+        pickReason: String = ""
     ) {
         self.overtureId = overtureId
         self.shopPrefix = shopPrefix
@@ -36,6 +42,8 @@ public struct CachedPick: Equatable, Sendable {
         self.costUsdcGuess = costUsdcGuess
         self.payTo = payTo
         self.x402Version = x402Version
+        self.pickSource = pickSource
+        self.pickReason = pickReason
     }
 
     public var usesShopV1: Bool { x402Version != 2 }
@@ -78,6 +86,25 @@ public struct RestaurantSnapshot: Equatable, Sendable {
         self.integration = integration
         self.shopPrefix = shopPrefix
         self.cuisineTags = cuisineTags
+    }
+}
+
+public struct PriorLunch: Equatable, Sendable {
+    public var menuItemId: String
+    public var itemName: String
+    public var merchantName: String
+    public var pickReason: String
+
+    public init(
+        menuItemId: String = "",
+        itemName: String,
+        merchantName: String,
+        pickReason: String = ""
+    ) {
+        self.menuItemId = menuItemId
+        self.itemName = itemName
+        self.merchantName = merchantName
+        self.pickReason = pickReason
     }
 }
 
@@ -147,8 +174,25 @@ public enum LunchScorer {
         case .bioShieldEmpty:
             return .bioShieldEmpty
         case .items(let survivors):
-            return .pick(cachedPick(from: argmax(survivors)))
+            return .pick(cachedPick(from: argmax(survivors), profile: profile))
         }
+    }
+
+    /// Drops the last lunch when another legal item exists. Never empties the box.
+    public static func withoutImmediateRepeat(
+        _ survivors: [ScoredItem],
+        prior: PriorLunch?
+    ) -> [ScoredItem] {
+        guard let prior else { return survivors }
+        let filtered = survivors.filter { scored in
+            if !prior.menuItemId.isEmpty {
+                return scored.item.id != prior.menuItemId
+            }
+            let sameName = scored.item.name.caseInsensitiveCompare(prior.itemName) == .orderedSame
+            let sameKitchen = scored.restaurant.name.caseInsensitiveCompare(prior.merchantName) == .orderedSame
+            return !(sameName && sameKitchen)
+        }
+        return filtered.isEmpty ? survivors : filtered
     }
 
     public enum WorkingSet: Equatable, Sendable {
@@ -228,20 +272,60 @@ public enum LunchScorer {
         }!
     }
 
-    public static func cachedPick(from scored: ScoredItem) -> CachedPick {
+    public static func cachedPick(from scored: ScoredItem, profile: ProfileEnvelope = .empty) -> CachedPick {
         CachedPick(
             overtureId: scored.restaurant.overtureId,
             shopPrefix: scored.restaurant.shopPrefix,
             menuItemId: scored.item.id,
             merchantName: scored.restaurant.name,
             itemName: scored.item.name,
-            costUsdcGuess: scored.item.costUsdcGuess
+            costUsdcGuess: scored.item.costUsdcGuess,
+            pickSource: "scorer",
+            pickReason: scorerReason(from: scored, profile: profile)
         )
     }
 
+    public static func scorerReason(from scored: ScoredItem, profile: ProfileEnvelope) -> String {
+        var parts = ["Local scorer chose this (score \(scored.score))."]
+        let pref = Set(profile.preferredCuisines.map { $0.lowercased() })
+        let rest = Set(scored.restaurant.cuisineTags.map { $0.lowercased() })
+        let overlap = pref.intersection(rest)
+        if !overlap.isEmpty {
+            parts.append("Cuisine overlap: \(overlap.sorted().joined(separator: ", ")).")
+        } else if !pref.isEmpty {
+            parts.append("No preferred-cuisine match.")
+        }
+        if let spice = scored.item.spice, spice.lowercased() == profile.spice.lowercased() {
+            parts.append("Spice \(spice) matches your setting.")
+        }
+        let meals = Set(scored.item.mealTypes.map { $0.lowercased() })
+        let want = Set(profile.preferredMealTypes.map { $0.lowercased() })
+        let mealHit = meals.intersection(want)
+        if !mealHit.isEmpty {
+            parts.append("Meal type: \(mealHit.sorted().joined(separator: ", ")).")
+        }
+        parts.append("Bio-Shield already allowed it. The on-device model did not override this pick.")
+        return parts.joined(separator: " ")
+    }
+
     /// Foundation Models (and tests) may only land on a pre-filtered survivor.
-    public static func pickIfLegal(itemId: String, from survivors: [ScoredItem]) -> CachedPick? {
+    public static func pickIfLegal(
+        itemId: String,
+        from survivors: [ScoredItem],
+        source: String = "scorer",
+        reason: String = "",
+        profile: ProfileEnvelope = .empty
+    ) -> CachedPick? {
         guard let hit = survivors.first(where: { $0.item.id == itemId }) else { return nil }
-        return cachedPick(from: hit)
+        if source == "foundation-model" {
+            var pick = cachedPick(from: hit, profile: profile)
+            pick.pickSource = source
+            let trimmed = ModelPickJSON.usableReason(reason) ?? ""
+            pick.pickReason = trimmed.isEmpty
+                ? "On-device model chose \(hit.item.name) at \(hit.restaurant.name) from the Bio-Shield-legal set. It did not explain why."
+                : trimmed
+            return pick
+        }
+        return cachedPick(from: hit, profile: profile)
     }
 }

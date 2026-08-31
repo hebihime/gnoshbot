@@ -44,4 +44,98 @@ struct GnoshbotStoreTests {
         #expect(defaults?.id == home.id)
         #expect(try store.deliveryLocations().count == 1)
     }
+
+    @Test("priorLunch skips the current row even when demo stays launching")
+    func priorAndDelete() throws {
+        let container = try GnoshbotPersistence.makeInMemoryContainer()
+        let store = GnoshbotStore(container: container)
+        let context = try store.modelContext
+        let home = DeliveryLocation(
+            label: "Home",
+            line1: "14 Pine Street",
+            city: "Brooklyn",
+            region: "NY",
+            postalCode: "11201",
+            country: "US",
+            latitude: 40.6944,
+            longitude: -73.9903,
+            isDefault: true
+        )
+        context.insert(home)
+
+        let old = ActiveOrderCache(
+            orderId: "old",
+            idempotencyKey: "k-old",
+            shopPrefix: "/demo",
+            delivery: home
+        )
+        old.itemName = "Lamb Kebab"
+        old.merchantName = "Harbor Grill"
+        old.menuItemId = "med-lamb"
+        old.status = .settled
+        old.timestamp = Date().addingTimeInterval(-60)
+        context.insert(old)
+
+        let launching = ActiveOrderCache(
+            orderId: "new",
+            idempotencyKey: "k-new",
+            shopPrefix: "/demo",
+            delivery: home
+        )
+        launching.status = .launching
+        launching.timestamp = Date()
+        context.insert(launching)
+        try context.save()
+
+        #expect(try store.priorLunch()?.menuItemId == "med-lamb")
+        try store.deleteAllOrders()
+        #expect(try store.latestOrder() == nil)
+        #expect(try store.priorLunch() == nil)
+        #expect(try store.deliveryLocations().count == 1)
+    }
+
+    @Test("priorLunch sees the previous demo lunch that never left launching")
+    func priorDemoLaunching() throws {
+        let container = try GnoshbotPersistence.makeInMemoryContainer()
+        let store = GnoshbotStore(container: container)
+        let context = try store.modelContext
+        let home = DeliveryLocation(
+            label: "Home",
+            line1: "14 Pine Street",
+            city: "Brooklyn",
+            region: "NY",
+            postalCode: "11201",
+            country: "US",
+            latitude: 40.6944,
+            longitude: -73.9903,
+            isDefault: true
+        )
+        context.insert(home)
+
+        let old = ActiveOrderCache(
+            orderId: "old",
+            idempotencyKey: "k-old",
+            shopPrefix: "/demo",
+            delivery: home
+        )
+        old.itemName = "Pepperoni Pie"
+        old.merchantName = "Pine Street Pasta"
+        old.menuItemId = "it-pepperoni"
+        old.status = .launching
+        old.timestamp = Date().addingTimeInterval(-60)
+        context.insert(old)
+
+        let launching = ActiveOrderCache(
+            orderId: "new",
+            idempotencyKey: "k-new",
+            shopPrefix: "/demo",
+            delivery: home
+        )
+        launching.status = .launching
+        launching.timestamp = Date()
+        context.insert(launching)
+        try context.save()
+
+        #expect(try store.priorLunch()?.menuItemId == "it-pepperoni")
+    }
 }

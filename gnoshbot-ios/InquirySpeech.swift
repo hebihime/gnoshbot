@@ -45,6 +45,18 @@ public enum InquirySpeech {
         return "\(row.itemName) from \(row.merchantName)."
     }
 
+    public static func why(_ row: ActiveOrderCache) -> String {
+        if row.itemName.isEmpty || row.merchantName.isEmpty {
+            return stillPlacing
+        }
+        let reason = (row.pickReason ?? "")
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+        if reason.isEmpty {
+            return "No reason stored for that lunch."
+        }
+        return "\(row.itemName) from \(row.merchantName). \(reason)"
+    }
+
     public static func cost(_ row: ActiveOrderCache) -> String {
         if row.status == .launching || row.status == .placed, row.costUsdc == 0 {
             return stillPlacing

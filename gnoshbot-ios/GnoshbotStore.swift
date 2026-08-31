@@ -71,6 +71,46 @@ public final class GnoshbotStore {
         return try context.fetch(ActiveOrderInquiry.latestDescriptor()).first
     }
 
+    /// Most recent lunch that is not the current in-flight row. Demo orders stay
+    /// `.launching`, so we cannot skip every launching status.
+    public func priorLunch() throws -> PriorLunch? {
+        let context = try modelContext
+        let descriptor = FetchDescriptor<ActiveOrderCache>(
+            sortBy: [SortDescriptor(\.timestamp, order: .reverse)]
+        )
+        let rows = try context.fetch(descriptor)
+        guard let currentId = rows.first?.orderId else { return nil }
+        for row in rows {
+            if row.orderId == currentId { continue }
+            guard !row.itemName.isEmpty else { continue }
+            return PriorLunch(
+                menuItemId: row.menuItemId ?? "",
+                itemName: row.itemName,
+                merchantName: row.merchantName,
+                pickReason: row.pickReason ?? ""
+            )
+        }
+        return nil
+    }
+
+    public func deleteAllOrders() throws {
+        let context = try modelContext
+        for row in try context.fetch(FetchDescriptor<ActiveOrderCache>()) {
+            context.delete(row)
+        }
+        try context.save()
+    }
+
+    /// One-shot: wipe lunches after the Lamb Kebab demo loop. Addresses stay.
+    public func wipeOrdersOnce() throws {
+        let defaults = FoundationModelProbe.defaults()
+        let key = "gnoshbot.orders.wipe.2026-08-31.3"
+        guard defaults.string(forKey: key) != "done" else { return }
+        try deleteAllOrders()
+        defaults.set("done", forKey: key)
+        defaults.synchronize()
+    }
+
     public func applyDemoFundingIfNeeded(_ settings: ControlPlaneSettings) {
         guard settings.isDemo else { return }
         fundedFlag = true
@@ -100,6 +140,9 @@ public final class GnoshbotStore {
         row.itemName = pick.itemName
         row.costUsdc = pick.costUsdcGuess
         row.shopPrefix = pick.shopPrefix
+        row.pickSource = pick.pickSource
+        row.pickReason = pick.pickReason
+        row.menuItemId = pick.menuItemId
         try persist()
     }
 
@@ -202,6 +245,9 @@ public final class GnoshbotStore {
             row.itemName = pick.itemName
             row.costUsdc = pick.costUsdcGuess
             row.shopPrefix = pick.shopPrefix
+            row.pickSource = pick.pickSource
+            row.pickReason = pick.pickReason
+            row.menuItemId = pick.menuItemId
         }
         context.insert(row)
         try context.save()
@@ -268,6 +314,18 @@ public enum GnoshbotPersistence {
 
     public static func makeAppContainer() throws -> ModelContainer {
         let url = appGroupStoreURL()
+        do {
+            return try openContainer(url: url)
+        } catch {
+            if let url {
+                destroyStore(at: url)
+                return try openContainer(url: url)
+            }
+            throw error
+        }
+    }
+
+    private static func openContainer(url: URL?) throws -> ModelContainer {
         let configuration: ModelConfiguration
         if let url {
             configuration = ModelConfiguration(schema: schema, url: url)
@@ -275,6 +333,14 @@ public enum GnoshbotPersistence {
             configuration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)
         }
         return try ModelContainer(for: schema, configurations: [configuration])
+    }
+
+    private static func destroyStore(at url: URL) {
+        let fm = FileManager.default
+        for suffix in ["", "-wal", "-shm"] {
+            let path = URL(fileURLWithPath: url.path + suffix)
+            try? fm.removeItem(at: path)
+        }
     }
 
     public static func makeInMemoryContainer() throws -> ModelContainer {
